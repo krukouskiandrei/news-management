@@ -1,0 +1,11 @@
+*.iml
+*.log
+<<<<<<< HEAD
+.idea/
+lib/
+target/
+=======
+.idea/*
+lib/*
+target/*
+>>>>>>> de6d54a46c42d2ad490d272b762ec4447e753e94
