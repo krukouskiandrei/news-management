@@ -10,12 +10,6 @@ import java.util.List;
  */
 public interface TagDAO extends EntityDAO<Tag, Long> {
 
-    /**
-     * find tags for the news
-     * @param newsId is news id which tags need to search
-     * @return news tags
-     * @throws DAOException if some problems in database
-     */
-    List<Tag> getNewsTagList(Long newsId) throws DAOException;
+
 
 }

@@ -2,8 +2,9 @@ package com.epam.newsmanagement.common.entity;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.validation.constraints.AssertTrue;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.sql.Timestamp;
 

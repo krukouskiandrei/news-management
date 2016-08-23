@@ -8,11 +8,11 @@ import java.util.List;
 /**
  * methods for {@link Comment} for operating with database
  */
-public interface CommentDao extends EntityDAO<Comment, Long> {
+public interface CommentDAO extends EntityDAO<Comment, Long> {
 
     /**
      * get comments for news
-     * @param newsId id news id
+     * @param newsId is news id
      * @return list comments for news
      * @throws DAOException id some problems in database
      */

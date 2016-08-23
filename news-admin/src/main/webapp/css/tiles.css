@@ -1,0 +1,18 @@
+.wrapper{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.logincontent{
+    flex: 1 0 auto;
+    margin-top: 15%;
+}
+.footer{
+    flex: 0 0 auto;
+}
+.lang{
+    padding-top:1.5%;
+}
+.logout{
+    padding-top: 1%;
+}

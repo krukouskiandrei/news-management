@@ -11,7 +11,7 @@
        http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <import resource="dataSourceConfig.xml"/>
-    <context:property-placeholder location="dbConfig.properties"/>
+    <context:property-placeholder location="classpath:dbConfig.properties"/>
     <context:component-scan base-package="com.epam.newsmanagement.common"/>
     <context:annotation-config/>
     <tx:annotation-driven proxy-target-class="true" transaction-manager="transactionManager"/>
