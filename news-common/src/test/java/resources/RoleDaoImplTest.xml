@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<<<<<<< HEAD
 <!DOCTYPE project>
-=======
->>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
 <dataset>
     <ROLES USER_ID="11" ROLE_NAME="GUEST"/>
     <ROLES USER_ID="12" ROLE_NAME="MODER"/>
