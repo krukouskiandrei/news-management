@@ -9,11 +9,7 @@ import java.util.List;
  */
 public class SearchParameter implements Serializable {
 
-<<<<<<< HEAD
     private static final long serialVersionUID = 2398423489723432423L;
-=======
-    private static final Long serialVersionUID = 2398423489723432423L;
->>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
 
     private Author author;
     private List<Tag> tagList;

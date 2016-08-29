@@ -58,10 +58,6 @@ public class NewsServiceImplTest {
     @Test
     public void testGetById() throws ServiceException, DAOException{
         News newsTo = new News();
-<<<<<<< HEAD
-=======
-        String newsName = "News name";
->>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
         Long newsId = new Long(1);
         when(newsDAO.getById(newsId)).thenReturn(newsTo);
         News newsFrom = newsService.getById(newsId);

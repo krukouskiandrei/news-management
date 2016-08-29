@@ -3,11 +3,7 @@
 <%@ page session="false" %>
 <html>
 <head>
-<<<<<<< HEAD
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/style/tiles.css">
-=======
-    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/tiles.css">
->>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
     <link rel="stylesheet" type="text/css" href="webjars/bootstrap/3.3.6/css/bootstrap.min.css">
 
 </head>

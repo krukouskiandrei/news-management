@@ -1,10 +1,6 @@
 package com.epam.newsmanagement.common.dao.impl;
 
-<<<<<<< HEAD
 /*import com.epam.newsmanagement.common.dao.RoleDAO;
-=======
-import com.epam.newsmanagement.common.dao.RoleDAO;
->>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
 import com.epam.newsmanagement.common.entity.Role;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
@@ -18,11 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-<<<<<<< HEAD
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;*/
-=======
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
->>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
 
 /**
  *

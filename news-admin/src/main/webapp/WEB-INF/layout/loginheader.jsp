@@ -5,4 +5,3 @@
     <a href="?lang=en" class="btn btn-warning">en</a>
     <a href="?lang=ru" class="btn btn-success">ru</a>
 </div>
-

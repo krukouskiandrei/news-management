@@ -1,6 +1,5 @@
 *.iml
 *.log
-<<<<<<< HEAD
 .idea/
 lib/
 target/
@@ -13,14 +12,3 @@ target/*
 .classpath
 *.classpath
 Runner.java
-=======
-<<<<<<< HEAD
-.idea/
-lib/
-target/
-=======
-.idea/*
-lib/*
-target/*
->>>>>>> de6d54a46c42d2ad490d272b762ec4447e753e94
->>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53

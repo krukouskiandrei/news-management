@@ -13,10 +13,6 @@ import java.io.Serializable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-<<<<<<< HEAD
-=======
-import java.util.Stack;
->>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
 
 /**
  * Implementing of {@link UserDAO}

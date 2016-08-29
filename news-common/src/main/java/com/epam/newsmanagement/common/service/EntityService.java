@@ -8,11 +8,7 @@ import java.util.List;
 /**
  * Service which provide API for DAO layer
  */
-<<<<<<< HEAD
 public interface EntityService<Entity extends Serializable, ID> {
-=======
-public interface EntityService<Entity extends Serializable, ID extends Long> {
->>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
 
     /**
      * Use {@link Entity} DAO layer for creating {@link Entity} object in database
