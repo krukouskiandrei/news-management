@@ -6,6 +6,10 @@ import com.epam.newsmanagement.common.dao.util.ConnectionCloser;
 import com.epam.newsmanagement.common.entity.Role;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
 import org.springframework.beans.factory.annotation.Autowired;
+<<<<<<< HEAD
+=======
+import org.springframework.stereotype.Component;
+>>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;

@@ -58,6 +58,10 @@ public class RoleServiceImplTest {
     @Test
     public void testGetById() throws ServiceException, DAOException{
         Role roleTo = new Role();
+<<<<<<< HEAD
+=======
+        String roleName = "Role name";
+>>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
         Long userId = new Long(1);
         when(roleDAO.getById(userId)).thenReturn(roleTo);
         Role roleFrom = roleService.getById(userId);

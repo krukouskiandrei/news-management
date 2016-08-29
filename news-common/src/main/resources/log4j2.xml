@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<<<<<<< HEAD
 <!DOCTYPE project>
+=======
+>>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
 <Configuration status="info">
     <Appenders>
         <File name="file" fileName="../logs/news-management/news_management.log">
@@ -17,4 +20,8 @@
             <AppenderRef ref="file"/>
         </Root>
     </Loggers>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
 </Configuration>

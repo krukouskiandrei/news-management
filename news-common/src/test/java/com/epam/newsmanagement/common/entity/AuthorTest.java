@@ -2,10 +2,20 @@ package com.epam.newsmanagement.common.entity;
 
 import org.junit.Assert;
 import org.junit.Test;
+<<<<<<< HEAD
+=======
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+>>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
 
 import java.sql.Timestamp;
 
 import static org.junit.Assert.assertEquals;
+<<<<<<< HEAD
+=======
+import static org.junit.Assert.assertTrue;
+>>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
 
 /**
  * Testing entity {@link Author}

@@ -10,7 +10,11 @@ import java.util.List;
  * @param <Entity> type of Entity
  * @param <ID> id of Entity
  */
+<<<<<<< HEAD
 public interface EntityDAO<Entity extends Serializable, ID> {
+=======
+public interface EntityDAO<Entity extends Serializable, ID extends Long> {
+>>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
 
     /**
      * create {@link Entity} in database

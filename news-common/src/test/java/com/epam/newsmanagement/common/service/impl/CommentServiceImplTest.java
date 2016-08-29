@@ -58,6 +58,10 @@ public class CommentServiceImplTest {
     @Test
     public void testGetById() throws ServiceException, DAOException{
         Comment commentTo = new Comment();
+<<<<<<< HEAD
+=======
+        String commentName = "Comment name";
+>>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
         Long commentId = new Long(1);
         when(commentDAO.getById(commentId)).thenReturn(commentTo);
         Comment commentFrom = commentService.getById(commentId);

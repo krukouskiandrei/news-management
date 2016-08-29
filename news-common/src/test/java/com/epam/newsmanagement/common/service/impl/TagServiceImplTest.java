@@ -58,6 +58,10 @@ public class TagServiceImplTest {
     @Test
     public void testGetById() throws ServiceException, DAOException{
         Tag tagTo = new Tag();
+<<<<<<< HEAD
+=======
+        String tagName = "Tag name";
+>>>>>>> 10563c064db22e544a6b8280f9d38a6262005b53
         Long tagId = new Long(1);
         when(tagDAO.getById(tagId)).thenReturn(tagTo);
         Tag tagFrom = tagService.getById(tagId);
