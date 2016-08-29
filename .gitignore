@@ -1,0 +1,14 @@
+*.iml
+*.log
+.idea/
+lib/
+target/
+.idea/*
+lib/*
+target/*
+.settings/*
+.project
+*.project
+.classpath
+*.classpath
+Runner.java
