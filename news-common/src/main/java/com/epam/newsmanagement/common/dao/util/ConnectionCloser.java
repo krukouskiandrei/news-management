@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Created by Krukouski Andrei on 19.08.2016.
+ * 
  */
 public class ConnectionCloser {
     private final static Logger logger = LogManager.getLogger(ConnectionCloser.class);
