@@ -1,21 +1,22 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<div class="col-md-6 text-center">
-    <h1>News portal - Administration</h1>
+<div class="header_title">
+    <h1><spring:message code="page.header.main.title"/></h1>
 </div>
-<div class="col-md-6 logout">
-    <div class="col-sm-10 text-center">
-        <h4>Hello, Admin <sec:authentication property="principal.username"/></h4>
+<div class="header_info">
+    <div class="header_username">
+        <h4><spring:message code="page.header.title.hello"/><sec:authentication property="principal.username"/></h4>
     </div>
 
-    <div class="col-sm-2 text-right">
+    <div class="header_logout">
         <form:form action="${pageContext.request.contextPath}/logout" method="POST">
-            <button class="btn btn-danger" type="submit">Logout</button>
+            <button type="submit"><spring:message code="page.header.logout.title"/></button>
         </form:form>
     </div>
-    <div class="col-sm-offset-8 col-sm-4 text-right">
-        <a href="?lang=en" class="btn btn-warning">en</a>
-        <a href="?lang=ru" class="btn btn-success">ru</a>
+    <div class="lang">
+        <a href="?lang=en"><spring:message code="page.header.lang.en"/></a>
+        <a href="?lang=ru"><spring:message code="page.header.lang.ru"/></a>
     </div>
 </div>

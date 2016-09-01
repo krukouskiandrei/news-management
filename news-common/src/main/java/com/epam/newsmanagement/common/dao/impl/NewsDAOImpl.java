@@ -222,4 +222,5 @@ public class NewsDAOImpl implements NewsDAO {
             ConnectionCloser.closeConnection(connection, dataSource, preparedStatement);
         }
     }
+        
 }

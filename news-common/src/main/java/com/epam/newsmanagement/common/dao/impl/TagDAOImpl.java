@@ -27,7 +27,8 @@ public class TagDAOImpl implements TagDAO {
     private final static String SELECT_COUNT_ALL_TAGS_SQL = "SELECT COUNT(TAG_ID) FROM TAG";
     private final static String UPDATE_TAG_BY_TAG_ID_SQL = "UPDATE TAG SET TAG_NAME = ? WHERE TAG_ID = ?";
     private final static String DELETE_TAG_BY_TAG_ID_SQL = "DELETE FROM TAG WHERE TAG_ID = ?";
-
+    private final static String SELECT_TAG_BY_NEWS_ID_SQL = "SELECT TAG.TAG_ID, TAG.TAG_NAME "
+    		+ "FROM TAG, NEWS_TAG WHERE NEWS_TAG.NEWS_ID = ? AND NEWS_TAG.TAG_ID = TAG.TAG_ID";
     @Autowired
     DataSource dataSource;
 
@@ -127,8 +128,8 @@ public class TagDAOImpl implements TagDAO {
 
             tagList = new ArrayList<Tag>();
             while (resultSet.next()){
-                Tag news = createTag(resultSet);
-                tagList.add(news);
+                Tag tag = createTag(resultSet);
+                tagList.add(tag);
             }
         }catch (SQLException e){
             throw new DAOException(e);
@@ -206,5 +207,35 @@ public class TagDAOImpl implements TagDAO {
         }finally {
             ConnectionCloser.closeConnection(connection, dataSource, preparedStatement);
         }
+    }
+    
+    /**
+     * Implementation {@link TagDAO#getAllTagsForNews(Long)
+     * @param newsId is the field on which the search
+     * @throws DAOException if some problems in database
+     */
+    @Override
+    public List<Tag> getAllTagsForNews(Long newsId) throws DAOException{
+    	List<Tag> listTag = null;
+    	Connection connection = null;
+    	PreparedStatement preparedStatement = null;
+    	ResultSet resultSet = null;
+    	try{
+    		connection = dataSource.getConnection();
+    		preparedStatement = connection.prepareStatement(SELECT_TAG_BY_NEWS_ID_SQL);
+    		preparedStatement.setLong(1,  newsId);
+    		resultSet = preparedStatement.executeQuery();
+    		listTag = new ArrayList<>();
+    		while(resultSet.next()){
+    			Tag tag = createTag(resultSet);
+    			listTag.add(tag);
+    		}
+    		
+    	}catch(SQLException e){
+    		throw new DAOException(e);
+    	}finally {
+			ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
+		}    	
+    	return listTag;
     }
 }

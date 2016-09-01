@@ -31,7 +31,10 @@ public class AuthorDAOImpl implements AuthorDAO {
     private final static String UPDATE_AUTHOR_BY_AUTHOR_ID_SQL = "UPDATE AUTHOR SET AUTHOR_NAME = ?, " +
             "EXPIRED = ? WHERE AUTHOR_ID = ?";
     private final static String DELETE_AUTHOR_BY_AUTHOR_ID_SQL = "DELETE FROM AUTHOR WHERE AUTHOR_ID = ?";
-
+    private final static String SELECT_AUTHOR_BY_NEWS_ID_SQL = "SELECT AUTHOR.AUTHOR_ID, "
+    		+ "AUTHOR.AUTHOR_NAME, AUTHOR.EXPIRED FROM AUTHOR, NEWS_AUTHOR"
+    		+ " WHERE NEWS_AUTHOR.NEWS_ID = ? AND NEWS_AUTHOR.AUTHOR_ID = AUTHOR.AUTHOR_ID";    
+    
     @Autowired
     private DataSource dataSource;
 
@@ -213,5 +216,31 @@ public class AuthorDAOImpl implements AuthorDAO {
             ConnectionCloser.closeConnection(connection, dataSource, preparedStatement);
         }
     }
-
+    
+    /**
+     * Implementation {@link AuthorDAO#getAuthorForNews(Long)}
+     * @param newsId is the field on which the search
+     * @throws DAOException if some problems in database
+     */
+    @Override
+    public Author getAuthorForNews(Long newsId) throws DAOException{
+    	Author author = null;
+    	Connection connection = null;
+    	PreparedStatement preparedStatement = null;
+    	ResultSet resultSet = null;
+    	try{
+    		connection = dataSource.getConnection();
+    		preparedStatement = connection.prepareStatement(SELECT_AUTHOR_BY_NEWS_ID_SQL);
+    		preparedStatement.setLong(1, newsId);
+    		resultSet = preparedStatement.executeQuery();
+    		if(resultSet.next()){
+    			author = createAuthor(resultSet);
+    		}
+    	}catch(SQLException e){
+    		throw new DAOException(e);
+    	}finally {
+			ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
+		}
+    	return author;
+    }
 }

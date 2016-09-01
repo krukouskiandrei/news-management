@@ -30,8 +30,6 @@
             	<update>true</update>
                 <url>http://localhost:8082/manager/text</url>
                 <server>localhost</server>
-                <username>admin</username>
-                <password>admin</password>
                 <path>/client</path>
            	</configuration>
       	</plugin>

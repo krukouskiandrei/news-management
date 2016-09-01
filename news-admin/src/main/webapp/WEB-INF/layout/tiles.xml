@@ -13,8 +13,18 @@
     <definition name="base" template="/WEB-INF/layout/page.jsp">
         <put-attribute name="header" value="/WEB-INF/layout/header.jsp"/>
         <put-attribute name="footer" value="/WEB-INF/layout/footer.jsp"/>
+        <put-attribute name="sitebar" value="/WEB-INF/layout/sitebar.jsp"/>
     </definition>
     <definition name="news" extends="base">
         <put-attribute name="body" value="/WEB-INF/views/news.jsp"/>
+    </definition>
+    <definition name="addnews" extends="base">
+    	<put-attribute name="body" value="/WEB-INF/views/addnews.jsp"/>
+    </definition>
+    <definition name="addauthor" extends="base">
+    	<put-attribute name="body" value="/WEB-INF/views/addauthor.jsp"/>
+    </definition>
+    <definition name="addtag" extends="base">
+    	<put-attribute name="body" value="/WEB-INF/views/addtag.jsp"/>
     </definition>
 </tiles-definitions>

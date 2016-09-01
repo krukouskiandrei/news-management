@@ -1,0 +1,128 @@
+body{
+	
+	
+}
+.login{
+	height: 83.5%;
+}
+.header_title{
+	display: inline-block;
+	color: #313977;
+	margin-left: 50px;
+}
+.header{
+	border-bottom: 3px solid #000;
+}
+.lang_login{
+	display: inline-block;
+	float: right;
+    font-size: 15px;
+    margin: 45px 30px 0 0;
+}
+.wrapper{
+    border: 3px solid #000;
+}
+.footer{
+    text-align: center;
+    border-top: 3px solid #000;
+}
+.footer h4{
+	margin: 0;
+}
+.content{
+	padding: 10px 10px 10px 0;
+}
+.field{
+	clear:both;
+	text-align:right;
+	line-height:25px;
+}
+.field label{
+	float:left;
+	padding-right:10px;
+}
+.main{
+	float:left;
+	margin-left: 39%;
+    margin-top: 15%;
+}
+.main button{
+	float: right;
+	font-size: 15px;
+    height: 3%;
+    width: 40%;
+    margin-top: 3%;
+}
+.header_info{
+	display: inline-block;
+    float: right;
+}
+.header_username{
+	display: inline-block;
+	padding: 0 30px;
+}
+.header_logout{
+	display: inline-block;
+	margin-right: 10px;
+	
+}
+.header_logout button{
+	height: 25px;
+    font-size: 15px;
+    width: 100px;
+}
+.lang{
+	text-align: right;
+    padding-right: 10%;
+}
+.sitebar{
+	width: 20%;
+    display: inline-block;
+    padding: 0 20px 20px 20px;
+    background-color: #B5B0B0;
+    border-top: 1px solid #CAC9C9;
+    float: left;
+}
+.sitebar nav{
+	background-color: #fff;
+	padding: 10px;
+	
+}
+.sitebar nav a{
+	display: block;
+	font-size: 17px;
+	margin: 10px 0;
+}
+.sitebar nav a img{
+	height: 2%;
+}
+.list_news{
+	width: 74%;
+    display: inline-block;
+    padding: 0 0 0 30px;
+	border: 1px solid #CAC9C9;
+}
+.news h3{
+	display: inline-block;
+	width: 50%;
+}
+.news{
+	font-size: 20px;
+}
+.author_date{
+	float: right;
+    margin: 25px 20px 0 0;
+}
+.comment_tag_news{
+	text-align: right;
+	padding-right: 50px;
+}
+.comment_tag_news span{
+	margin: 0 20px;
+}
+.tag{
+	color: #B6B4B4;
+}
+.comment{
+	color: #EB2D2D;
+}

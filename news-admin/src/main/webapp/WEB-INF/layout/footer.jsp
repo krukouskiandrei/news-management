@@ -1,3 +1,4 @@
-<div class="col-md-12 text-center">
-    <h4>Copyright @Epam 2015. All rights reserved.</h4>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<div>
+    <h4><spring:message code="page.footer.main.title"/></h4>
 </div>

@@ -1,7 +1,8 @@
-<div class="col-md-8 text-center">
-    <h1>News portal - Administration</h1>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<div class="header_title">
+    <h1><spring:message code="loginpage.header.main.title"/></h1>
 </div>
-<div class="col-md-4 text-center lang">
-    <a href="?lang=en" class="btn btn-warning">en</a>
-    <a href="?lang=ru" class="btn btn-success">ru</a>
+<div class="lang_login">
+    <a href="?lang=en"><spring:message code="loginpage.header.lang.en"/></a>
+    <a href="?lang=ru"><spring:message code="loginpage.header.lang.ru"/></a>
 </div>

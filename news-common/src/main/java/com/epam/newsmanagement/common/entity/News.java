@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 /**
  * Represents News Model corresponding to table in dao model
@@ -14,7 +15,8 @@ import java.sql.Timestamp;
 public class News implements Serializable {
 
     private static final long serialVersionUID = 7473837282737294822L;
-
+    private static final SimpleDateFormat dayMonthYearFormatter = new SimpleDateFormat("MM/dd/yyyy");
+    
     private Long idNews;
     @NotBlank
     @Length(max = 30)
@@ -67,7 +69,16 @@ public class News implements Serializable {
     public void setModificationDate(Date modificationDate){
         this.modificationDate = modificationDate;
     }
-
+    public String getDate(){
+    	String date = null;
+    	if(creationDate == null){
+    		return date;
+    	}else{
+    		return dayMonthYearFormatter.format((java.util.Date) creationDate);
+    	}
+    }
+    
+    
     @Override
     public boolean equals(Object object){
         if(this == object){
