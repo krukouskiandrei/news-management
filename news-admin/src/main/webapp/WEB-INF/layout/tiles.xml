@@ -27,4 +27,7 @@
     <definition name="addtag" extends="base">
     	<put-attribute name="body" value="/WEB-INF/views/addtag.jsp"/>
     </definition>
+    <definition name="error" extends="base">
+    	<put-attribute name="body" value="/WEB-INF/views/error.jsp"/>
+    </definition>
 </tiles-definitions>

@@ -3,11 +3,17 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <div class="filter">
-	<form:form action="filter" method="POST" commandName="FilterForm">
-		<%-- <form:select path="author">
+	<form:form action="filternews" method="POST" modelAttribute="searchParameter">
+		<form:select path="author.idAuthor">
 			<form:option value="0" label="Select Author"/>
-			<form:options items="${listNewsInfo}" itemValue="author.idAuthor" itemLabel="author.authorName"/>
-		</form:select> --%>
+			<form:options items="${listAuthors}" itemValue="idAuthor" itemLabel="authorName"/>
+		</form:select>
+		<form:select path="tagList[0].idTag">
+			<form:option value="0" label="Select Tag"/>
+			<form:options items="${listTags}" itemValue="idTag" itemLabel="tagName"/>
+		</form:select>
+		<input type="submit" value="Filter">
+		<input type="reset" value="Reset">
 	</form:form>
 </div>
 <div class="list_news">

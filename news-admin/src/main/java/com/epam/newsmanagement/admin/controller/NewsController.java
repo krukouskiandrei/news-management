@@ -5,12 +5,19 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.epam.newsmanagement.common.entity.Author;
 import com.epam.newsmanagement.common.entity.NewsInfo;
+import com.epam.newsmanagement.common.entity.SearchParameter;
+import com.epam.newsmanagement.common.entity.Tag;
 import com.epam.newsmanagement.common.exception.service.ServiceException;
+import com.epam.newsmanagement.common.service.AuthorService;
 import com.epam.newsmanagement.common.service.NewsService;
+import com.epam.newsmanagement.common.service.TagService;
 
 /**
  * controller for works news
@@ -23,16 +30,35 @@ public class NewsController {
 
 	@Autowired
 	NewsService newsService;
-
+	@Autowired
+	AuthorService authorService;
+	@Autowired
+	TagService tagService;
+	
     @RequestMapping(value = "news", method = {RequestMethod.GET, RequestMethod.POST})
     public String getAllNews(Model model){
     	List<NewsInfo> listNewsInfo = null;
+    	List<Author> listAuthor = null;
+    	List<Tag> listTag = null;
     	try{
-    		listNewsInfo = newsService.getAllNewsWithInfo();    	
+    		listNewsInfo = newsService.getAllNewsWithInfo();
+    	}catch(ServiceException e){
+    		
+    	}
+    	try{
+    		listAuthor = authorService.getAll();
+    	}catch(ServiceException e){
+    		
+    	}
+    	try{
+    		listTag = tagService.getAll();
     	}catch(ServiceException e){
     		
     	}
     	model.addAttribute("listNewsInfo", listNewsInfo);
+    	model.addAttribute("listAuthors", listAuthor);
+    	model.addAttribute("searchParameter", new SearchParameter());
+    	model.addAttribute("listTags", listTag);
     	return "news";
     }
     
@@ -45,6 +71,16 @@ public class NewsController {
     @RequestMapping(value = "addnews", method = RequestMethod.GET)
     public String getAddNewsPage(){
     	return "addnews";
+    }
+    
+    @RequestMapping(value = "filternews", method = RequestMethod.POST)
+    public String filteredNews(@ModelAttribute("searchParameter")SearchParameter searchParameter, 
+    		BindingResult result, Model model){
+    	if(result.hasErrors()){
+    		return "error";
+    	}
+    	
+    	return "showNews";
     }
     
 

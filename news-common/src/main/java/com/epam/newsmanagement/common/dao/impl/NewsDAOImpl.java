@@ -31,7 +31,15 @@ public class NewsDAOImpl implements NewsDAO {
     private final static String UPDATE_NEWS_BY_NEWS_ID_SQL = "UPDATE NEWS SET TITLE = ?, SHORT_TEXT = ?, FULL_TEXT = ?, " +
             "CREATION_DATE = ?, MODIFICATION_DATE = ? WHERE NEWS_ID = ?";
     private final static String DELETE_NEWS_BY_NEWS_ID_SQL = "DELETE FROM NEWS WHERE NEWS_ID = ?";
-
+    private final static String SELECT_NEWSES_FROM_TO_ORDER_SQL = "SELECT * FROM (SELECT a.*, "
+    		+ "ROWNUM rnum FROM (SELECT n.NEWS_ID, n.TITLE, n.SHORT_TEXT, n.FULL_TEXT, n.CREATION_DATE, "
+    		+ "n.MODIFICATION_DATE, COUNT(c.NEWS_ID) as co FROM NEWS n LEFT JOIN COMMENTS c ON n.NEWS_ID "
+    		+ "= c.NEWS_ID GROUP BY n.NEWS_ID, n.TITLE, n.SHORT_TEXT, n.FULL_TEXT, n.CREATION_DATE, "
+    		+ "n.MODIFICATION_DATE ORDER BY n.CREATION_DATE DESC, co DESC) a WHERE ROWNUM <= ?) WHERE rnum >= ?"; /*Select news order by 
+    																												creation date and 
+    																												count comments by more
+    																												population (use ROWNUM,
+    																												 pagination)*/		
     @Autowired
     private DataSource dataSource;
 
