@@ -230,5 +230,34 @@ public class NewsDAOImpl implements NewsDAO {
             ConnectionCloser.closeConnection(connection, dataSource, preparedStatement);
         }
     }
+    /**
+     * Implementation {@link NewsDAO#paginationNews(int, int)}}
+     * @param from and to is position news in all list
+     * @throws DAOException if some problems in database
+     */
+    @Override
+    public List<News> paginationNews(int from, int to) throws DAOException{
+    	List<News> listNews = null;
+    	Connection connection = null;
+    	PreparedStatement preparedStatement = null;
+    	ResultSet resultSet = null;
+    	try{
+    		connection = dataSource.getConnection();
+    		preparedStatement = connection.prepareStatement(SELECT_NEWSES_FROM_TO_ORDER_SQL);
+    		preparedStatement.setInt(1, to);
+    		preparedStatement.setInt(2,  from);
+    		resultSet = preparedStatement.executeQuery();
+    		listNews =  new ArrayList<>();
+    		while(resultSet.next()){
+    			News news = createNews(resultSet);
+    			listNews.add(news);
+    		}
+    	}catch(SQLException e){
+    		throw new DAOException(e);
+    	}finally{
+    		ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
+    	}
+    	return listNews;
+    }
         
 }

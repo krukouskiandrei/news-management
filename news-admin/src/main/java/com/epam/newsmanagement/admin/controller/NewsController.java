@@ -40,8 +40,9 @@ public class NewsController {
     	List<NewsInfo> listNewsInfo = null;
     	List<Author> listAuthor = null;
     	List<Tag> listTag = null;
+    	int numberNews = 3;
     	try{
-    		listNewsInfo = newsService.getAllNewsWithInfo();
+    		listNewsInfo = newsService.paginationNews(1, numberNews);
     	}catch(ServiceException e){
     		
     	}

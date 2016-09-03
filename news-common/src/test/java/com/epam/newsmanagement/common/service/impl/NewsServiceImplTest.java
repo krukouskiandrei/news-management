@@ -201,8 +201,72 @@ public class NewsServiceImplTest {
     	verify(authorDAO).getAuthorForNews(id1);
     	verify(authorDAO).getAuthorForNews(id2);
     	verify(newsDAO).getAll();
-    	
-    	
     }
-
+    /**
+     * testing method paginationNews(int, int)
+     * @throws DAOException
+     * @throws ServiceException
+     */
+    @Test
+    public void testPaginationnNews() throws DAOException, ServiceException{
+    	List<NewsInfo> listNewsInfo = new ArrayList<>();
+    	Long id1 = new Long(1);
+    	Long id2 = new Long(2);
+    	int from = 1; int to = 5;
+    	NewsInfo newsInfo1 = new NewsInfo();
+    	NewsInfo newsInfo2 = new NewsInfo();
+    	News news1 = new News();
+    	news1.setIdNews(id1);
+    	News news2 = new News();
+    	news2.setIdNews(id2);
+    	newsInfo1.setNews(news1);
+    	newsInfo2.setNews(news2);
+    	List<News> newsList = new ArrayList<>();
+    	newsList.add(news1);
+    	newsList.add(news2);
+    	when(newsDAO.paginationNews(from, to)).thenReturn(newsList);
+    	Author author1 = new Author();
+    	author1.setIdAuthor(id1);
+    	Author author2 = new Author();
+    	author2.setIdAuthor(id2);
+    	newsInfo1.setAuthor(author1);
+    	newsInfo2.setAuthor(author2);
+    	when(authorDAO.getAuthorForNews(id1)).thenReturn(author1);
+    	when(authorDAO.getAuthorForNews(id2)).thenReturn(author2);
+    	Tag tag1 = new Tag();
+    	tag1.setIdTag(id1);
+    	Tag tag2 = new Tag();
+    	tag2.setIdTag(id2);
+    	List<Tag> listTag1 = new ArrayList<>();
+    	listTag1.add(tag1);
+    	List<Tag> listTag2 = new ArrayList<>();
+    	listTag2.add(tag2);
+    	newsInfo1.setTags(listTag1);
+    	newsInfo2.setTags(listTag2);
+    	when(tagDAO.getAllTagsForNews(id1)).thenReturn(listTag1);
+    	when(tagDAO.getAllTagsForNews(id2)).thenReturn(listTag2);
+    	Comment comment1 = new Comment();
+    	comment1.setIdComment(id1);
+    	Comment comment2 = new Comment();
+    	comment2.setIdComment(id2);
+    	List<Comment> listComment1 = new ArrayList<>();
+    	listComment1.add(comment1);
+    	List<Comment> listComment2 = new ArrayList<>();
+    	listComment2.add(comment2);
+    	newsInfo1.setComments(listComment1);
+    	newsInfo2.setComments(listComment2);
+    	when(commentDAO.getCommentList(id1)).thenReturn(listComment1);
+    	when(commentDAO.getCommentList(id2)).thenReturn(listComment2);
+    	listNewsInfo.add(newsInfo1);
+    	listNewsInfo.add(newsInfo2);
+    	List<NewsInfo> resultListNewsInfo = newsService.paginationNews(from, to);
+    	Assert.assertEquals(listNewsInfo, resultListNewsInfo);
+    	verify(commentDAO).getCommentList(id1);
+    	verify(commentDAO).getCommentList(id2);
+    	verify(tagDAO).getAllTagsForNews(id1);
+    	verify(tagDAO).getAllTagsForNews(id2);
+    	verify(authorDAO).getAuthorForNews(id1);
+    	verify(authorDAO).getAuthorForNews(id2);
+    	verify(newsDAO).paginationNews(from, to);
+    }
 }

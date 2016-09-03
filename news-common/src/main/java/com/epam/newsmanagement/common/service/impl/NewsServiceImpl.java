@@ -142,38 +142,84 @@ public class NewsServiceImpl implements NewsService{
     	
     	List<News> listNews = null;
     	listNews = getAll();
+    	listNewsInfo = getInfoNews(listNews);
+    	return listNewsInfo;
+    }
+    
+    /**
+     * Implementation {@link NewsService#paginationNews(int, int)}
+     * throws ServiceException if some problems on DAO layer
+     */
+    @Override
+    public List<NewsInfo> paginationNews(int from, int to) throws ServiceException{
+    	List<NewsInfo> listNewsInfo = null;
+    	
+    	List<News> listNews = null;
+    	try{
+    		listNews = newsDAO.paginationNews(from, to);
+    	}catch(DAOException e){
+    		logger.error("Failed to get news by position from=" + from + ", to=" + to, e);
+    		throw new ServiceException(e);
+    	}
+    	listNewsInfo = getInfoNews(listNews);
+    	
+    	return listNewsInfo;
+    }
+    
+    /**
+     * get list {@link NewsInfo} 
+     * @param listNews is list news for which need to find Info
+     * @return list {@link NewsInfo}
+     * @throws ServiceException if some problems on DAO layer
+     */
+    private List<NewsInfo> getInfoNews(List<News> listNews) throws ServiceException{
+    	List<NewsInfo> listNewsInfo = null;
     	Iterator<News> newsIterator = listNews.iterator();
     	listNewsInfo = new ArrayList<>();
     	while(newsIterator.hasNext()){
     		NewsInfo newsInfo = new NewsInfo();
     		News news = newsIterator.next();
-    		Author author = null;
-    		try{
-    			author = authorDAO.getAuthorForNews(news.getIdNews());    	
-    		}catch(DAOException e){
-    			logger.error("Failed to get author for news, where newsId=" + news.getIdNews(), e);
-    			throw new ServiceException(e);
-    		}
-    		newsInfo.setAuthor(author);
-    		List<Tag> listTag = null;
-    		try{
-    			listTag = tagDAO.getAllTagsForNews(news.getIdNews());
-    		}catch(DAOException e){
-    			logger.error("Failed to get list tag for news, where newsId=" + news.getIdNews(), e);
-    			throw new ServiceException(e);
-    		}
-    		newsInfo.setTags(listTag);
-    		List<Comment> listComment = null;
-    		try{
-    			listComment = commentDAO.getCommentList(news.getIdNews());
-    		}catch(DAOException e){
-    			logger.error("Failed to get list comments for news, where newsId=" + news.getIdNews(), e);
-    			throw new ServiceException(e);
-    		}
-    		newsInfo.setComments(listComment);
+    		newsInfo = getInfoForNews(news.getIdNews());
     		newsInfo.setNews(news);
     		listNewsInfo.add(newsInfo);
     	}
     	return listNewsInfo;
+    }
+    
+    /**
+     * get {@link NewsInfo} without {@link News} 
+     * @param newsId is parameter by need to find NewsInfo
+     * @return {@link NewsInfo}
+     * @throws ServiceException if some problems on DAO layer
+     */
+    private NewsInfo getInfoForNews(Long newsId) throws ServiceException{
+    	
+    	NewsInfo newsInfo = new NewsInfo();
+		Author author = null;
+		try{
+			author = authorDAO.getAuthorForNews(newsId);    	
+		}catch(DAOException e){
+			logger.error("Failed to get author for news, where newsId=" + newsId, e);
+			throw new ServiceException(e);
+		}
+		newsInfo.setAuthor(author);
+		List<Tag> listTag = null;
+		try{
+			listTag = tagDAO.getAllTagsForNews(newsId);
+		}catch(DAOException e){
+			logger.error("Failed to get list tag for news, where newsId=" + newsId, e);
+			throw new ServiceException(e);
+		}
+		newsInfo.setTags(listTag);
+		List<Comment> listComment = null;
+		try{
+			listComment = commentDAO.getCommentList(newsId);
+		}catch(DAOException e){
+			logger.error("Failed to get list comments for news, where newsId=" + newsId, e);
+			throw new ServiceException(e);
+		}
+		newsInfo.setComments(listComment);
+    	
+		return newsInfo;
     }
 }

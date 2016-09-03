@@ -20,5 +20,12 @@ public interface NewsService extends EntityService<News, Long> {
 	 */
 	List<NewsInfo> getAllNewsWithInfo() throws ServiceException;
 
-
+	/**
+	 * get list news for showing on page sorted by creation date and count comments
+	 * @param from min position news
+	 * @param to max pasiotion news
+	 * @return list {@link News} 
+	 * @throws ServiceException if some problems on DAO layer
+	 */
+	List<NewsInfo> paginationNews(int from, int to) throws ServiceException;
 }
