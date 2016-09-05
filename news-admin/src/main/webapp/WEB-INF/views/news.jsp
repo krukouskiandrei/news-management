@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <div class="filter">
 	<form:form action="filternews" method="POST" modelAttribute="searchParameter">
 		<form:select path="author.idAuthor">
@@ -42,5 +43,16 @@
 		</div>
 	</div>
 </c:forEach>
+<div class="delete-button">
+	<a href="#">Delete</a>
+</div>
+<div id="page-buttons">
+  		
+</div>
 </div>
 
+<script src="${pageContext.request.contextPath}/resources/script/jquery-3.1.0.min.js" type="text/javascript"></script>
+<script src="${pageContext.request.contextPath}/resources/script/createChangePageButtons.js" type="text/javascript"></script>
+<script>
+		$(document).ready(createPageButtons(${countNews}, ${pageNum}, "${pageContext.request.contextPath}"));
+</script>
