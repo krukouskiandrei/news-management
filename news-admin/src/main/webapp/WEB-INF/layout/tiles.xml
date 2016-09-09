@@ -17,7 +17,7 @@
     </definition>
     <definition name="news" extends="base">
         <put-attribute name="body" value="/WEB-INF/views/news.jsp"/>
-    </definition>
+   	</definition>
     <definition name="addnews" extends="base">
     	<put-attribute name="body" value="/WEB-INF/views/addnews.jsp"/>
     </definition>

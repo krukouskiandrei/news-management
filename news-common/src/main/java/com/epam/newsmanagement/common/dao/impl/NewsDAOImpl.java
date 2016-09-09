@@ -31,6 +31,16 @@ public class NewsDAOImpl implements NewsDAO {
     private final static String UPDATE_NEWS_BY_NEWS_ID_SQL = "UPDATE NEWS SET TITLE = ?, SHORT_TEXT = ?, FULL_TEXT = ?, " +
             "CREATION_DATE = ?, MODIFICATION_DATE = ? WHERE NEWS_ID = ?";
     private final static String DELETE_NEWS_BY_NEWS_ID_SQL = "DELETE FROM NEWS WHERE NEWS_ID = ?";
+    private final static String SELECT_NEWS_BY_AUTHOR_ID_SQL = "SELECT NEWS.NEWS_ID, NEWS.TITLE, "
+    		+ "NEWS.SHORT_TEXT, NEWS.FULL_TEXT, NEWS.CREATION_DATE, NEWS.MODIFICATION_DATE "
+    		+ "FROM NEWS, NEWS_AUTHOR WHERE NEWS.NEWS_ID = NEWS_AUTHOR.NEWS_ID AND NEWS_AUTHOR.AUTHOR_ID = ?";
+    private final static String SELECT_NEWS_BY_TAG_ID_SQL = "SELECT NEWS.NEWS_ID, NEWS.TITLE, "
+    		+ "NEWS.SHORT_TEXT, NEWS.FULL_TEXT, NEWS.CREATION_DATE, NEWS.MODIFICATION_DATE "
+    		+ "FROM NEWS, NEWS_TAG WHERE NEWS.NEWS_ID = NEWS_TAG.NEWS_ID AND NEWS_TAG.TAG_ID = ?";
+    private final static String SELECT_NEWS_BY_AUTHOR_AND_TAG_SQL = "SELECT NEWS.NEWS_ID, NEWS.TITLE, "
+    		+ "NEWS.SHORT_TEXT, NEWS.FULL_TEXT, NEWS.CREATION_DATE, NEWS.MODIFICATION_DATE FROM NEWS, "
+    		+ "NEWS_TAG, NEWS_AUTHOR WHERE NEWS.NEWS_ID = NEWS_TAG.NEWS_ID AND NEWS_TAG.TAG_ID = ? "
+    		+ "AND NEWS.NEWS_ID = NEWS_AUTHOR.NEWS_ID AND NEWS_AUTHOR.AUTHOR_ID = ?";
     private final static String SELECT_NEWSES_FROM_TO_ORDER_SQL = "SELECT * FROM (SELECT a.*, "
     		+ "ROWNUM rnum FROM (SELECT n.NEWS_ID, n.TITLE, n.SHORT_TEXT, n.FULL_TEXT, n.CREATION_DATE, "
     		+ "n.MODIFICATION_DATE, COUNT(c.NEWS_ID) as co FROM NEWS n LEFT JOIN COMMENTS c ON n.NEWS_ID "
@@ -259,5 +269,83 @@ public class NewsDAOImpl implements NewsDAO {
     	}
     	return listNews;
     }
-        
+    /**
+     * Implementation {@link NewsDAO#getNewsByAuthor(Long)}
+     */
+    @Override
+    public List<News> getNewsByAuthor(Long authorId) throws DAOException{
+    	List<News> listNews = null;
+    	Connection connection = null;
+    	PreparedStatement preparedStatement = null;
+    	ResultSet resultSet = null;
+    	try{
+    		connection = dataSource.getConnection();
+    		preparedStatement = connection.prepareStatement(SELECT_NEWS_BY_AUTHOR_ID_SQL);
+    		preparedStatement.setLong(1, authorId);
+    		resultSet = preparedStatement.executeQuery();
+    		listNews = new ArrayList<>();
+    		while(resultSet.next()){
+    			News news = createNews(resultSet);
+    			listNews.add(news);
+    		}
+    	}catch(SQLException e){
+    		throw new DAOException(e);
+    	}finally {
+			ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
+		}
+    	return listNews;
+    }
+    /**
+     * Implementation {@link NewsDAO#getNewsByTag(Long)}
+     */
+    @Override
+    public List<News> getNewsByTag(Long tagId) throws DAOException{
+    	List<News> listNews = null;
+    	Connection connection = null;
+    	PreparedStatement preparedStatement = null;
+    	ResultSet resultSet = null;
+    	try{
+    		connection = dataSource.getConnection();
+    		preparedStatement = connection.prepareStatement(SELECT_NEWS_BY_TAG_ID_SQL);
+    		preparedStatement.setLong(1,  tagId);
+    		resultSet = preparedStatement.executeQuery();
+    		listNews = new ArrayList<>();
+    		while(resultSet.next()){
+    			News news = createNews(resultSet);
+    			listNews.add(news);
+    		}
+    	}catch(SQLException e){
+    		throw new DAOException(e);
+    	}finally{
+    		ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
+    	}
+    	return listNews;
+    }
+    /**
+     * Implementation {@link NewsDAO#getNewsByAuthorAndTag(Long, Long)}
+     */
+    @Override
+    public List<News> getNewsByAuthorAndTag(Long tagId, Long authorId) throws DAOException{
+    	List<News> listNews = null;
+    	Connection connection = null;
+    	PreparedStatement preparedStatement = null;
+    	ResultSet resultSet = null;
+    	try{
+    		connection = dataSource.getConnection();
+    		preparedStatement = connection.prepareStatement(SELECT_NEWS_BY_AUTHOR_AND_TAG_SQL);
+    		preparedStatement.setLong(1, tagId);
+    		preparedStatement.setLong(2, authorId);
+    		resultSet = preparedStatement.executeQuery();
+    		listNews = new ArrayList<>();
+    		while(resultSet.next()){
+    			News news = createNews(resultSet);
+    			listNews.add(news);
+    		}
+    	}catch(SQLException e){
+    		throw new DAOException(e);
+    	}finally{
+    		ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
+    	}
+    	return listNews;
+    }
 }

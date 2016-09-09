@@ -18,5 +18,29 @@ public interface NewsDAO extends EntityDAO<News, Long> {
 	 * @return list {@link News} order by population
 	 */
 	List<News> paginationNews(int from, int to) throws DAOException;
-
+	
+	/**
+	 * Get news by creation author, uses news_author table from database
+	 * @param authorId is parameter for which need to search 
+	 * @return list {@link News} which have common author
+	 * @throws DAOException if some problem in database
+	 */
+	List<News> getNewsByAuthor(Long authorId) throws DAOException;
+	
+	/**
+	 * Get news by tag, uses news_tag table from database
+	 * @param tagId is parameter for which need to search
+	 * @return list {@link News} which have common tag
+	 * @throws DAOException if some problem in database
+	 */
+	List<News> getNewsByTag(Long tagId) throws DAOException;
+	
+	/**
+	 * Get news by tag and author, uses news_tag and news_author table from database
+	 * @param tagId is parameter for which need to search 
+	 * @param authorId id parameter for which need to search
+	 * @return list {@link News} which have common author and tag
+	 * @throws DAOException if some problem in database
+	 */
+	List<News> getNewsByAuthorAndTag(Long tagId, Long authorId) throws DAOException;
 }

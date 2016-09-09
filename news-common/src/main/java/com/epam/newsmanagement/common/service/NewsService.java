@@ -5,6 +5,7 @@ import java.util.List;
 import com.epam.newsmanagement.common.dao.NewsDAO;
 import com.epam.newsmanagement.common.entity.News;
 import com.epam.newsmanagement.common.entity.NewsInfo;
+import com.epam.newsmanagement.common.entity.SearchParameter;
 import com.epam.newsmanagement.common.exception.service.ServiceException;
 
 /**
@@ -28,4 +29,12 @@ public interface NewsService extends EntityService<News, Long> {
 	 * @throws ServiceException if some problems on DAO layer
 	 */
 	List<NewsInfo> paginationNews(int from, int to) throws ServiceException;
+	
+	/**
+	 * Search news which meet to searchParameter
+	 * @param searchParameter is parameters for searching
+	 * @return list {@link NewsInfo}
+	 * @throws ServiceException if some problems on DAO layer
+	 */
+	List<NewsInfo> searchNews(SearchParameter searchParameter) throws ServiceException;
 }

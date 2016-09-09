@@ -6,18 +6,20 @@
 <div class="filter">
 	<form:form action="filternews" method="POST" modelAttribute="searchParameter">
 		<form:select path="author.idAuthor">
-			<form:option value="0" label="Select Author"/>
 			<form:options items="${listAuthors}" itemValue="idAuthor" itemLabel="authorName"/>
 		</form:select>
 		<form:select path="tagList[0].idTag">
-			<form:option value="0" label="Select Tag"/>
 			<form:options items="${listTags}" itemValue="idTag" itemLabel="tagName"/>
 		</form:select>
 		<input type="submit" value="Filter">
 		<input type="reset" value="Reset">
 	</form:form>
+	
 </div>
 <div class="list_news">
+<c:if test="${empty listNewsInfo}">
+	<h1>Not newses</h1>
+</c:if>
 <c:forEach items="${listNewsInfo}" var="newsInfo">
 	<div class="news">
 		<h3>
@@ -41,11 +43,13 @@
 			<span><a href="#">Edit</a></span>
 			<input type="checkbox"/>
 		</div>
-	</div>
+	</div>	
 </c:forEach>
-<div class="delete-button">
-	<a href="#">Delete</a>
-</div>
+<c:if test="${not empty listNewsInfo}">
+	<div class="delete-button">
+		<a href="#">Delete</a>
+	</div>
+</c:if>
 <div id="page-buttons">
   		
 </div>

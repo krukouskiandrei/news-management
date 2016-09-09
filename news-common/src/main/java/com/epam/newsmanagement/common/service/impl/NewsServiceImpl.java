@@ -8,6 +8,7 @@ import com.epam.newsmanagement.common.entity.Author;
 import com.epam.newsmanagement.common.entity.Comment;
 import com.epam.newsmanagement.common.entity.News;
 import com.epam.newsmanagement.common.entity.NewsInfo;
+import com.epam.newsmanagement.common.entity.SearchParameter;
 import com.epam.newsmanagement.common.entity.Tag;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
 import com.epam.newsmanagement.common.exception.service.ServiceException;
@@ -165,7 +166,42 @@ public class NewsServiceImpl implements NewsService{
     	
     	return listNewsInfo;
     }
-    
+    /**
+     * Implementation {@link NewsService#searchNews(SearchParameter)
+     */
+    @Override
+    public List<NewsInfo> searchNews(SearchParameter searchParameter) throws ServiceException{
+    	List<NewsInfo> listNewsInfo = null;
+    	List<News> listNews = null;
+    	if(searchParameter.getAuthor() != null && !searchParameter.getTagList().isEmpty()){
+    		try{
+    			listNews = newsDAO.getNewsByAuthorAndTag(searchParameter.getTagList().get(0).getIdTag(),
+    					searchParameter.getAuthor().getIdAuthor());
+    		}catch(DAOException e){
+    			logger.error("Failed to get news by authorId=" + searchParameter.getAuthor().getIdAuthor()
+    					+ " and tagId=" + searchParameter.getTagList().get(0).getIdTag(), e);
+    			throw new ServiceException(e);
+    		}
+    	}else{
+    		if(searchParameter.getAuthor() != null){
+    			try{
+    				listNews = newsDAO.getNewsByAuthor(searchParameter.getAuthor().getIdAuthor());
+    			}catch(DAOException e){
+    				logger.error("Failed to get news by authorId=" + searchParameter.getAuthor().getIdAuthor(), e);
+    				throw new ServiceException(e);
+    			}
+    		}else{
+    			try{
+    				listNews = newsDAO.getNewsByTag(searchParameter.getTagList().get(0).getIdTag());
+    			}catch(DAOException e){
+    				logger.error("Failed to get news by tagId=" + searchParameter.getTagList().get(0).getIdTag(), e);
+    				throw new ServiceException(e);
+    			}
+    		}
+    	}
+    	listNewsInfo = getInfoNews(listNews);
+    	return listNewsInfo;
+    }
     /**
      * get list {@link NewsInfo} 
      * @param listNews is list news for which need to find Info
@@ -185,7 +221,7 @@ public class NewsServiceImpl implements NewsService{
     	}
     	return listNewsInfo;
     }
-    
+        
     /**
      * get {@link NewsInfo} without {@link News} 
      * @param newsId is parameter by need to find NewsInfo

@@ -8,6 +8,7 @@ import com.epam.newsmanagement.common.entity.Author;
 import com.epam.newsmanagement.common.entity.Comment;
 import com.epam.newsmanagement.common.entity.News;
 import com.epam.newsmanagement.common.entity.NewsInfo;
+import com.epam.newsmanagement.common.entity.SearchParameter;
 import com.epam.newsmanagement.common.entity.Tag;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
 import com.epam.newsmanagement.common.exception.service.ServiceException;
@@ -268,5 +269,45 @@ public class NewsServiceImplTest {
     	verify(authorDAO).getAuthorForNews(id1);
     	verify(authorDAO).getAuthorForNews(id2);
     	verify(newsDAO).paginationNews(from, to);
+    }
+    
+    @Test
+    public void testSearchNews() throws DAOException, ServiceException{
+    	Long idNews = new Long(1);
+    	Long idAuthor = new Long(1);
+    	Long idTag = new Long(1);
+    	Long idComment = new Long(1);
+    	News news = new News();
+    	news.setIdNews(idNews);
+    	Author author = new Author();
+    	author.setIdAuthor(idAuthor);
+    	Tag tag = new Tag();
+    	tag.setIdTag(idTag);
+    	Comment comment = new Comment();
+    	comment.setIdComment(idComment);
+    	List<Tag> tagList = new ArrayList<>();
+    	tagList.add(tag);
+    	List<Comment> commentList = new ArrayList<>();
+    	commentList.add(comment);
+    	List<News> newsList = new ArrayList<>();
+    	newsList.add(news);
+    	NewsInfo newsInfo = new NewsInfo();
+    	newsInfo.setAuthor(author);
+    	newsInfo.setNews(news);
+    	newsInfo.setTags(tagList);
+    	newsInfo.setComments(commentList);
+    	List<NewsInfo> newsInfoList = new ArrayList<>();
+    	newsInfoList.add(newsInfo);
+    	when(newsDAO.getNewsByAuthorAndTag(idTag, idAuthor)).thenReturn(newsList);
+    	when(newsDAO.getNewsByAuthor(idAuthor)).thenReturn(newsList);
+    	when(newsDAO.getNewsByTag(idTag)).thenReturn(newsList);
+    	when(authorDAO.getAuthorForNews(idNews)).thenReturn(author);
+    	when(tagDAO.getAllTagsForNews(idNews)).thenReturn(tagList);
+    	when(commentDAO.getCommentList(idNews)).thenReturn(commentList);
+    	SearchParameter searchParameter = new SearchParameter();
+    	searchParameter.setAuthor(author);
+    	searchParameter.setTagList(tagList);
+    	List<NewsInfo> resultNewsInfoList = newsService.searchNews(searchParameter);
+    	Assert.assertEquals(newsInfoList, resultNewsInfoList);
     }
 }
