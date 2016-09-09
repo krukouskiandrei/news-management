@@ -22,7 +22,7 @@ function createPageButtons(countNews, pageNum, path){
     	for(var i = left; i <= right; i++){
     		elementLinkOnPage = document.createElement('a');
     		elementLinkOnPage.setAttribute("class", "buttonPage");
-    		elementLinkOnPage.setAttribute("href", path + "/page/" + i);
+    		elementLinkOnPage.setAttribute("href", path + "/news/page/" + i);
     		elementLinkOnPage.setAttribute("countPage", allNumPage);
     		$(elementLinkOnPage).append(i);
     		if(i == currentNumPage){
@@ -39,7 +39,7 @@ function createPageButtons(countNews, pageNum, path){
     	for(var i = left; i <= right; i++){
     		elementLinkOnPage = document.createElement('a');
     		elementLinkOnPage.setAttribute("class", "buttonPage");
-    		elementLinkOnPage.setAttribute("href", path + "/page/" + i);
+    		elementLinkOnPage.setAttribute("href", path + "/news/page/" + i);
     		elementLinkOnPage.setAttribute("countPage", allNumPage);
     		$(elementLinkOnPage).append(i);
     		if(i == currentNumPage){
@@ -54,7 +54,7 @@ function createPageButtons(countNews, pageNum, path){
     	for(var i = left; i <= right; i++){
     		elementLinkOnPage = document.createElement('a');
     		elementLinkOnPage.setAttribute("class", "buttonPage");
-    		elementLinkOnPage.setAttribute("href", path + "/page/" + i);
+    		elementLinkOnPage.setAttribute("href", path + "/news/page/" + i);
     		elementLinkOnPage.setAttribute("countPage", allNumPage);
     		$(elementLinkOnPage).append(i);
     		if(i == currentNumPage){
