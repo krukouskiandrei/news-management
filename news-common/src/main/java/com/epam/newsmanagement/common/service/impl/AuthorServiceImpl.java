@@ -33,13 +33,15 @@ public class AuthorServiceImpl implements AuthorService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
-    public Long create(Author author) throws ServiceException{
-        try {
-            return authorDAO.create(author);
-        }catch (DAOException e){
-            logger.error("Failed to create author" + author, e);
-            throw new ServiceException(e);
-        }
+    public void create(Author author) throws ServiceException{
+        if(author != null){
+        	try {
+        		authorDAO.create(author);
+        	}catch (DAOException e){
+        		logger.error("Failed to create author" + author, e);
+        		throw new ServiceException(e);
+        	}
+    	}
     }
 
     /**
@@ -50,12 +52,15 @@ public class AuthorServiceImpl implements AuthorService {
      */
     @Override
     public Author getById(Long authorId) throws ServiceException{
-        try {
-            return authorDAO.getById(authorId);
-        }catch (DAOException e){
-            logger.error("Failed to get author by id=" + authorId , e);
-            throw new ServiceException(e);
+        if(authorId != null){
+        	try {
+        		return authorDAO.getById(authorId);
+        	}catch (DAOException e){
+        		logger.error("Failed to get author by id=" + authorId , e);
+        		throw new ServiceException(e);
+        	}
         }
+        throw new ServiceException();
     }
 
     /**
@@ -95,11 +100,13 @@ public class AuthorServiceImpl implements AuthorService {
      */
     @Override
     public void update(Author author) throws ServiceException{
-        try{
-            authorDAO.update(author);
-        }catch (DAOException e){
-            logger.error("Failed to update author" + author, e);
-            throw new ServiceException(e);
+        if(author != null){
+        	try{
+        		authorDAO.update(author);
+        	}catch (DAOException e){
+        		logger.error("Failed to update author" + author, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 
@@ -110,11 +117,13 @@ public class AuthorServiceImpl implements AuthorService {
      */
     @Override
     public void delete(Long authorId) throws ServiceException{
-        try {
-            authorDAO.delete(authorId);
-        }catch (DAOException e){
-            logger.error("Failed to delete author by id=" + authorId, e);
-            throw new ServiceException(e);
+        if(authorId != null){
+        	try {
+        		authorDAO.delete(authorId);
+        	}catch (DAOException e){
+        		logger.error("Failed to delete author by id=" + authorId, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 

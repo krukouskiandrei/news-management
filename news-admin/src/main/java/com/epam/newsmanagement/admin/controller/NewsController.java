@@ -195,5 +195,11 @@ public class NewsController {
         
     	return model;
     }
+    
+    @RequestMapping(value = "/news/{idNews}", method = RequestMethod.GET)
+    public String showNews(@PathVariable long idNews, Model model){
+    	
+    	return "showNews";
+    }
 
 }

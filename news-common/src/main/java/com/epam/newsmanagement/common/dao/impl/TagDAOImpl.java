@@ -2,16 +2,18 @@ package com.epam.newsmanagement.common.dao.impl;
 
 import com.epam.newsmanagement.common.dao.EntityDAO;
 import com.epam.newsmanagement.common.dao.TagDAO;
-import com.epam.newsmanagement.common.dao.util.ConnectionCloser;
+import com.epam.newsmanagement.common.dao.mapper.TagMapper;
 import com.epam.newsmanagement.common.entity.Tag;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,18 +22,35 @@ import java.util.List;
 @Repository
 public class TagDAOImpl implements TagDAO {
 
-    private final static String INSERT_TAG_SQL = "INSERT INTO TAG(TAG_ID, TAG_NAME) VALUES(TAG_SEQUENCE.NEXTVAL, ?)";
-    private final static String SELECT_TAG_BY_TAG_ID_SQL = "SELECT TAG_ID, TAG_NAME FROM TAG WHERE TAG_ID = ?";
-    private final static String SELECT_ALL_TAGS_SQL = "SELECT TAG_ID, TAG_NAME FROM TAG";
-    private final static String TAG_ID = "TAG_ID";
-    private final static String SELECT_COUNT_ALL_TAGS_SQL = "SELECT COUNT(TAG_ID) FROM TAG";
-    private final static String UPDATE_TAG_BY_TAG_ID_SQL = "UPDATE TAG SET TAG_NAME = ? WHERE TAG_ID = ?";
-    private final static String DELETE_TAG_BY_TAG_ID_SQL = "DELETE FROM TAG WHERE TAG_ID = ?";
-    private final static String SELECT_TAG_BY_NEWS_ID_SQL = "SELECT TAG.TAG_ID, TAG.TAG_NAME "
-    		+ "FROM TAG, NEWS_TAG WHERE NEWS_TAG.NEWS_ID = ? AND NEWS_TAG.TAG_ID = TAG.TAG_ID";
+    private final static String SQL_INSERT_TAG = "INSERT INTO TAG(TAG_ID, TAG_NAME) "
+    											+ "VALUES(TAG_SEQUENCE.NEXTVAL, ?)";
+    private final static String SQL_SELECT_TAG_BY_TAG_ID = "SELECT TAG_ID, TAG_NAME "
+    														+ "FROM TAG "
+    														+ "WHERE TAG_ID = ?";
+    private final static String SQL_SELECT_ALL_TAGS = "SELECT TAG_ID, TAG_NAME "
+    												+ "FROM TAG";
+    private final static String SQL_SELECT_COUNT_ALL_TAGS = "SELECT COUNT(1) "
+    														+ "FROM TAG";
+    private final static String SQL_UPDATE_TAG_BY_TAG_ID = "UPDATE TAG "
+    													+ "SET TAG_NAME = ? "
+    													+ "WHERE TAG_ID = ?";
+    private final static String SQL_DELETE_TAG_BY_TAG_ID = "DELETE FROM TAG "
+    														+ "WHERE TAG_ID = ?";
+    private final static String SQL_SELECT_TAG_BY_NEWS_ID = "SELECT TAG.TAG_ID, TAG.TAG_NAME "
+    														+ "FROM TAG, NEWS_TAG "
+    														+ "WHERE NEWS_TAG.NEWS_ID = ? AND NEWS_TAG.TAG_ID = TAG.TAG_ID";
+    
+    private final static Logger logger = LogManager.getLogger(TagDAOImpl.class);
+    private DataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
+    
     @Autowired
-    DataSource dataSource;
+    public void setDataSource(DataSource dataSource){
+    	this.dataSource = dataSource;
+    	this.jdbcTemplate = new JdbcTemplate(this.dataSource);
+    }
 
+    
     /**
      * Implementation of {@link EntityDAO#create(Serializable)}
      * @param tag is parameter which need to insert in database
@@ -39,28 +58,12 @@ public class TagDAOImpl implements TagDAO {
      * @throws DAOException if some problems in database
      */
     @Override
-    public Long create(Tag tag) throws DAOException {
-        Long tagId = null;
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(INSERT_TAG_SQL, new String[]{TAG_ID});
-
-            preparedStatement.setString(1, tag.getTagName());
-            preparedStatement.executeUpdate();
-            resultSet = preparedStatement.getGeneratedKeys();
-            if(resultSet.next()){
-                tagId = resultSet.getLong(1);
-                tag.setIdTag(tagId);
-            }
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
-        }
-        return tagId;
+    public void create(Tag tag) throws DAOException {
+    	if(tag != null){
+    		jdbcTemplate.update(SQL_INSERT_TAG, 
+    				new Object[]{tag.getTagName()});
+    		logger.debug("Tag=" + tag + " inserted in table Tag;");
+    	}
     }
 
     /**
@@ -72,40 +75,10 @@ public class TagDAOImpl implements TagDAO {
     @Override
     public Tag getById(Long tagId) throws DAOException{
         Tag tag = null;
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(SELECT_TAG_BY_TAG_ID_SQL);
-
-            preparedStatement.setLong(1, tagId);
-            resultSet = preparedStatement.executeQuery();
-            if(resultSet.next()){
-                tag = createTag(resultSet);
-            }
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
-        }
-        return tag;
-    }
-
-    /**
-     * create {@link Tag} which get from database
-     * @param resultSet contains {@link Tag}
-     * @return created role
-     * @throws DAOException if some problems in database
-     */
-    private Tag createTag(ResultSet resultSet) throws  DAOException{
-        Tag tag = null;
-        try {
-            tag = new Tag();
-            tag.setIdTag(resultSet.getLong(1));
-            tag.setTagName(resultSet.getString(2));
-        }catch (SQLException e){
-            throw new DAOException(e);
+        if(tagId != null){
+        	tag = jdbcTemplate.queryForObject(SQL_SELECT_TAG_BY_TAG_ID, 
+        			new Object[]{tagId}, new TagMapper());
+        	logger.debug("Tag selected by tagId=" + tagId + ";");
         }
         return tag;
     }
@@ -118,24 +91,8 @@ public class TagDAOImpl implements TagDAO {
     @Override
     public List<Tag> getAll() throws DAOException{
         List<Tag> tagList = null;
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = dataSource.getConnection();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(SELECT_ALL_TAGS_SQL);
-
-            tagList = new ArrayList<Tag>();
-            while (resultSet.next()){
-                Tag tag = createTag(resultSet);
-                tagList.add(tag);
-            }
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, statement, resultSet);
-        }
+        tagList = jdbcTemplate.query(SQL_SELECT_ALL_TAGS, new TagMapper());
+        logger.debug("All tags selected;");
         return tagList;
     }
 
@@ -147,22 +104,8 @@ public class TagDAOImpl implements TagDAO {
     @Override
     public Long countAll() throws DAOException{
         Long count = null;
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try{
-            connection = dataSource.getConnection();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(SELECT_COUNT_ALL_TAGS_SQL);
-            count = 0L;
-            if (resultSet.next()){
-                count = resultSet.getLong(1);
-            }
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, statement, resultSet);
-        }
+        count = jdbcTemplate.queryForObject(SQL_SELECT_COUNT_ALL_TAGS, Long.class);
+        logger.debug("All tags counted;");
         return count;
     }
 
@@ -173,18 +116,10 @@ public class TagDAOImpl implements TagDAO {
      */
     @Override
     public void update(Tag tag) throws DAOException{
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(UPDATE_TAG_BY_TAG_ID_SQL);
-            preparedStatement.setString(1, tag.getTagName());
-            preparedStatement.setLong(2, tag.getIdTag());
-            preparedStatement.executeUpdate();
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement);
+        if(tag != null){
+        	jdbcTemplate.update(SQL_UPDATE_TAG_BY_TAG_ID, 
+        			new Object[]{tag.getTagName(), tag.getIdTag()});
+        	logger.debug("Tag=" + tag + " updated;");
         }
     }
 
@@ -195,17 +130,9 @@ public class TagDAOImpl implements TagDAO {
      */
     @Override
     public void delete(Long tagId) throws DAOException{
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(DELETE_TAG_BY_TAG_ID_SQL);
-            preparedStatement.setLong(1, tagId);
-            preparedStatement.executeUpdate();
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement);
+        if(tagId != null){
+        	jdbcTemplate.update(SQL_DELETE_TAG_BY_TAG_ID, new Object[]{tagId});
+        	logger.debug("Tag by tagId=" + tagId + " deleted;");
         }
     }
     
@@ -217,25 +144,11 @@ public class TagDAOImpl implements TagDAO {
     @Override
     public List<Tag> getAllTagsForNews(Long newsId) throws DAOException{
     	List<Tag> listTag = null;
-    	Connection connection = null;
-    	PreparedStatement preparedStatement = null;
-    	ResultSet resultSet = null;
-    	try{
-    		connection = dataSource.getConnection();
-    		preparedStatement = connection.prepareStatement(SELECT_TAG_BY_NEWS_ID_SQL);
-    		preparedStatement.setLong(1,  newsId);
-    		resultSet = preparedStatement.executeQuery();
-    		listTag = new ArrayList<>();
-    		while(resultSet.next()){
-    			Tag tag = createTag(resultSet);
-    			listTag.add(tag);
-    		}
-    		
-    	}catch(SQLException e){
-    		throw new DAOException(e);
-    	}finally {
-			ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
-		}    	
+    	if(newsId != null){
+    		listTag = jdbcTemplate.query(SQL_SELECT_TAG_BY_NEWS_ID, 
+    				new Object[]{newsId}, new TagMapper());
+    		logger.debug("All tags selected for news where newsId=" + newsId);
+    	}    	
     	return listTag;
     }
 }

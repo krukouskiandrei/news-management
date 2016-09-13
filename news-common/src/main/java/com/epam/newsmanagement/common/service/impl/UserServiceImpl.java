@@ -33,12 +33,14 @@ public class UserServiceImpl implements UserService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
-    public Long create(User user) throws ServiceException{
-        try {
-            return userDAO.create(user);
-        }catch (DAOException e){
-            logger.error("Failed to create user" + user, e);
-            throw new ServiceException(e);
+    public void create(User user) throws ServiceException{
+        if(user != null){
+        	try {
+        		userDAO.create(user);
+        	}catch (DAOException e){
+        		logger.error("Failed to create user" + user, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 
@@ -50,12 +52,15 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public User getById(Long userId) throws ServiceException{
-        try {
-            return userDAO.getById(userId);
-        }catch (DAOException e){
-            logger.error("Failed to get user by user id where userId=" + userId, e);
-            throw new ServiceException(e);
+        if(userId != null){
+        	try {
+        		return userDAO.getById(userId);
+        	}catch (DAOException e){
+        		logger.error("Failed to get user by user id where userId=" + userId, e);
+        		throw new ServiceException(e);
+        	}
         }
+        throw new ServiceException();
     }
 
     /**
@@ -95,11 +100,13 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public void update(User user) throws ServiceException{
-        try {
-            userDAO.update(user);
-        }catch (DAOException e){
-            logger.error("Failed to update user" + user, e);
-            throw new ServiceException(e);
+        if(user != null){
+        	try {
+        		userDAO.update(user);
+        	}catch (DAOException e){
+        		logger.error("Failed to update user" + user, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 
@@ -110,11 +117,13 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public void delete(Long userId) throws ServiceException{
-        try {
-            userDAO.delete(userId);
-        }catch (DAOException e){
-            logger.error("Failed to delete user by user id where userId=" + userId, e);
-            throw new ServiceException(e);
+        if(userId != null){
+        	try {
+        		userDAO.delete(userId);
+        	}catch (DAOException e){
+        		logger.error("Failed to delete user by user id where userId=" + userId, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 
@@ -126,12 +135,15 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public boolean checkUser(Long userId) throws ServiceException{
-        try {
-            return userDAO.checkUser(userId);
-        }catch (DAOException e){
-            logger.error("Failed to check user by user id where userId=" + userId, e);
-            throw new ServiceException(e);
+        if(userId != null){
+        	try {
+        		return userDAO.checkUser(userId);
+        	}catch (DAOException e){
+        		logger.error("Failed to check user by user id where userId=" + userId, e);
+        		throw new ServiceException(e);
+        	}
         }
+        throw new ServiceException();
     }
 
     /**
@@ -143,11 +155,14 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public User getUser(String login, String password) throws ServiceException{
-        try {
-            return userDAO.getUser(login, password);
-        }catch (DAOException e){
-            logger.error("Failed to get user by login and password where login=" + login +", password=" + password, e);
-            throw new ServiceException(e);
+        if(login != null && password != null){
+        	try {
+        		return userDAO.getUser(login, password);
+        	}catch (DAOException e){
+        		logger.error("Failed to get user by login and password where login=" + login +", password=" + password, e);
+        		throw new ServiceException(e);
+        	}
         }
+        throw new ServiceException();
     }
 }

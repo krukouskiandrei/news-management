@@ -2,16 +2,18 @@ package com.epam.newsmanagement.common.dao.impl;
 
 import com.epam.newsmanagement.common.dao.EntityDAO;
 import com.epam.newsmanagement.common.dao.RoleDAO;
-import com.epam.newsmanagement.common.dao.util.ConnectionCloser;
+import com.epam.newsmanagement.common.dao.mapper.RoleMapper;
 import com.epam.newsmanagement.common.entity.Role;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,16 +22,32 @@ import java.util.List;
 @Repository
 public class RoleDAOImpl implements RoleDAO{
 
-    private final static String INSERT_ROLE_SQL = "INSERT INTO ROLES (USER_ID, ROLE_NAME) VALUES(?, ?)";
-    private final static String SELECT_ROLE_BY_USER_ID_SQL = "SELECT USER_ID, ROLE_NAME FROM ROLES WHERE USER_ID = ?";
-    private final static String SELECT_ALL_ROLES_SQL = "SELECT USER_ID, ROLE_NAME FROM ROLES";
-    private final static String USER_ID = "USER_ID";
-    private final static String SELECT_COUNT_ALL_ROLES_SQL = "SELECT COUNT(USER_ID) FROM ROLES";
-    private final static String UPDATE_ROLE_BY_USER_ID_SQL = "UPDATE ROLES SET ROLE_NAME = ? WHERE USER_ID = ?";
-    private final static String DELETE_ROLE_BY_USER_ID_SQL = "DELETE FROM ROLES WHERE USER_ID = ?";
-    @Autowired
+    private final static String SQL_INSERT_ROLE = "INSERT INTO ROLES (USER_ID, ROLE_NAME) "
+    											+ "VALUES(?, ?)";
+    private final static String SQL_SELECT_ROLE_BY_USER_ID = "SELECT USER_ID, ROLE_NAME "
+    														+ "FROM ROLES "
+    														+ "WHERE USER_ID = ?";
+    private final static String SQL_SELECT_ALL_ROLES = "SELECT USER_ID, ROLE_NAME "
+    													+ "FROM ROLES";
+    private final static String SQL_SELECT_COUNT_ALL_ROLES = "SELECT COUNT(1) "
+    														+ "FROM ROLES";
+    private final static String SQL_UPDATE_ROLE_BY_USER_ID = "UPDATE ROLES "
+    														+ "SET ROLE_NAME = ? "
+    														+ "WHERE USER_ID = ?";
+    private final static String SQL_DELETE_ROLE_BY_USER_ID = "DELETE FROM ROLES "
+    														+ "WHERE USER_ID = ?";
+    
+    private final static Logger logger = LogManager.getLogger(RoleDAOImpl.class);
     private DataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    public void setDataSource(DataSource dataSource){
+    	this.dataSource = dataSource;
+    	this.jdbcTemplate = new JdbcTemplate(this.dataSource);
+    }
+
+    
     /**
      * Implementation of {@link EntityDAO#create(Serializable)}
      * @param role is parameter which need to insert in database
@@ -37,30 +55,13 @@ public class RoleDAOImpl implements RoleDAO{
      * @throws DAOException if some problems in database
      */
    @Override
-    public Long create(Role role) throws DAOException{
-        Long userId = null;
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try{
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(INSERT_ROLE_SQL, new String[]{USER_ID});
-
-            preparedStatement.setLong(1, role.getUserId());
-            preparedStatement.setString(2, role.getRoleName());
-            preparedStatement.executeUpdate();
-            resultSet = preparedStatement.getGeneratedKeys();
-            if(resultSet.next()){
-                userId = resultSet.getLong(1);
-                role.setUserId(userId);
-            }
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
-        }
-       return userId;
-    }
+    public void create(Role role) throws DAOException{
+	   if(role != null){
+		   jdbcTemplate.update(SQL_INSERT_ROLE, 
+				   new Object[]{role.getUserId(), role.getRoleName()});
+		   logger.debug("Role=" + role + " inserted in table Role;");
+	   }
+   }
 
     /**
      * Implementation of {@link EntityDAO#getById(Long)}
@@ -71,24 +72,10 @@ public class RoleDAOImpl implements RoleDAO{
     @Override
     public Role getById(Long userId) throws DAOException{
         Role role = null;
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try{
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(SELECT_ROLE_BY_USER_ID_SQL);
-
-            preparedStatement.setLong(1, userId);
-            resultSet = preparedStatement.executeQuery();
-            if(resultSet.next()){
-                role = new Role();
-                role.setUserId(resultSet.getLong(1));
-                role.setRoleName(resultSet.getString(2));
-            }
-            }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
+        if(userId != null){
+        	role = jdbcTemplate.queryForObject(SQL_SELECT_ROLE_BY_USER_ID, 
+        			new Object[]{userId}, new RoleMapper());
+        	logger.debug("Role selected by userId=" + userId + ";");
         }
         return role;
     }
@@ -101,43 +88,10 @@ public class RoleDAOImpl implements RoleDAO{
     @Override
     public List<Role> getAll() throws DAOException{
         List<Role> roleList = null;
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try{
-            connection = dataSource.getConnection();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(SELECT_ALL_ROLES_SQL);
-
-            roleList = new ArrayList<Role>();
-            while (resultSet.next()){
-                Role role = createRole(resultSet);
-                roleList.add(role);
-            }
-            }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, statement, resultSet);
-        }
+        roleList = jdbcTemplate.query(SQL_SELECT_ALL_ROLES, 
+        		new RoleMapper());
+        logger.debug("All roles selected;");
         return roleList;
-    }
-
-    /**
-     * create {@link Role} which get from database
-     * @param resultSet contains {@link Role}
-     * @return created role
-     * @throws DAOException if some problems in database
-     */
-    private Role createRole(ResultSet resultSet) throws DAOException{
-        Role role = null;
-        try {
-            role = new Role();
-            role.setUserId(resultSet.getLong(1));
-            role.setRoleName(resultSet.getString(2));
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }
-        return role;
     }
 
     /**
@@ -147,22 +101,8 @@ public class RoleDAOImpl implements RoleDAO{
      */
     public Long countAll() throws DAOException{
         Long count = null;
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try{
-            connection = dataSource.getConnection();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(SELECT_COUNT_ALL_ROLES_SQL);
-            count = 0L;
-            if (resultSet.next()){
-                count = resultSet.getLong(1);
-            }
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, statement, resultSet);
-        }
+        count = jdbcTemplate.queryForObject(SQL_SELECT_COUNT_ALL_ROLES, Long.class);
+        logger.debug("All roles counted");
         return count;
     }
 
@@ -173,18 +113,10 @@ public class RoleDAOImpl implements RoleDAO{
      */
     @Override
     public void update(Role role) throws DAOException{
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try{
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(UPDATE_ROLE_BY_USER_ID_SQL);
-            preparedStatement.setString(1, role.getRoleName());
-            preparedStatement.setLong(2, role.getUserId());
-            preparedStatement.executeUpdate();
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement);
+        if(role != null){
+        	jdbcTemplate.update(SQL_UPDATE_ROLE_BY_USER_ID, 
+        			new Object[]{role.getRoleName(), role.getUserId()});
+        	logger.debug("Role=" + role + " updated in table Role;");
         }
     }
 
@@ -195,17 +127,9 @@ public class RoleDAOImpl implements RoleDAO{
      */
     @Override
     public void delete(Long userID) throws DAOException{
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try{
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(DELETE_ROLE_BY_USER_ID_SQL);
-            preparedStatement.setLong(1, userID);
-            preparedStatement.executeUpdate();
-            }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement);
+        if(userID != null){
+        	jdbcTemplate.update(SQL_DELETE_ROLE_BY_USER_ID, new Object[]{userID});
+        	logger.debug("Role for userId=" + userID + " deleted;");
         }
     }
 }

@@ -43,10 +43,7 @@ public class RoleServiceImplTest {
     @Test
     public void testCreate() throws ServiceException, DAOException {
         Role role = new Role();
-        Long userIdTo = new Long(1);
-        when(roleDAO.create(role)).thenReturn(userIdTo);
-        Long userIdFrom = roleService.create(role);
-        Assert.assertEquals(userIdFrom, userIdTo);
+        roleService.create(role);
         verify(roleDAO).create(role);
     }
 

@@ -33,12 +33,14 @@ public class RoleServiceImpl implements RoleService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
-    public Long create(Role role) throws ServiceException{
-        try {
-            return roleDAO.create(role);
-        }catch (DAOException e){
-            logger.error("Failed to create role" + role, e);
-            throw new ServiceException(e);
+    public void create(Role role) throws ServiceException{
+        if(role != null){
+        	try {
+        		roleDAO.create(role);
+        	}catch (DAOException e){
+        		logger.error("Failed to create role" + role, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 
@@ -50,12 +52,15 @@ public class RoleServiceImpl implements RoleService {
      */
     @Override
     public Role getById(Long userId) throws ServiceException{
-        try {
-            return roleDAO.getById(userId);
-        }catch (DAOException e){
-            logger.error("Failed to get role by user id where userId=" + userId, e);
-            throw new ServiceException(e);
+        if(userId != null){
+        	try {
+        		return roleDAO.getById(userId);
+        	}catch (DAOException e){
+        		logger.error("Failed to get role by user id where userId=" + userId, e);
+        		throw new ServiceException(e);
+        	}
         }
+        throw new ServiceException();
     }
 
     /**
@@ -95,11 +100,13 @@ public class RoleServiceImpl implements RoleService {
      */
     @Override
     public void update(Role role) throws ServiceException{
-        try {
-            roleDAO.update(role);
-        }catch (DAOException e){
-            logger.error("Failed to update role" + role, e);
-            throw new ServiceException(e);
+        if(role != null){
+        	try {
+        		roleDAO.update(role);
+        	}catch (DAOException e){
+        		logger.error("Failed to update role" + role, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 
@@ -110,11 +117,13 @@ public class RoleServiceImpl implements RoleService {
      */
     @Override
     public void delete(Long userID) throws ServiceException{
-        try {
-            roleDAO.delete(userID);
-        }catch (DAOException e){
-            logger.error("Failed to delete role by user id where userId=" + userID, e);
-            throw new ServiceException(e);
+        if(userID != null){
+        	try {
+        		roleDAO.delete(userID);
+        	}catch (DAOException e){
+        		logger.error("Failed to delete role by user id where userId=" + userID, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 }

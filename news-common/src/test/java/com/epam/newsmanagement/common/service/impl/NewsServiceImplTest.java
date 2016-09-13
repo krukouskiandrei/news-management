@@ -57,10 +57,7 @@ public class NewsServiceImplTest {
     @Test
     public void testCreate() throws ServiceException, DAOException {
         News news = new News();
-        Long newsIdTo = new Long(1);
-        when(newsDAO.create(news)).thenReturn(newsIdTo);
-        Long newsIdFrom = newsService.create(news);
-        Assert.assertEquals(newsIdTo, newsIdFrom);
+        newsService.create(news);
         verify(newsDAO).create(news);
     }
 

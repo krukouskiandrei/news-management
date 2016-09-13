@@ -49,12 +49,14 @@ public class NewsServiceImpl implements NewsService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
-    public Long create(News news) throws ServiceException{
-        try {
-            return newsDAO.create(news);
-        }catch (DAOException e){
-            logger.error("Failed to create news" + news, e);
-            throw new ServiceException(e);
+    public void create(News news) throws ServiceException{
+        if(news != null){
+        	try {
+        		newsDAO.create(news);
+        	}catch (DAOException e){
+        		logger.error("Failed to create news" + news, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 
@@ -66,12 +68,15 @@ public class NewsServiceImpl implements NewsService{
      */
     @Override
     public News getById(Long newsId) throws ServiceException{
-        try {
-            return newsDAO.getById(newsId);
-        }catch (DAOException e){
-            logger.error("Failed to get news by news id where newsId=" + newsId, e);
-            throw new ServiceException(e);
+        if(newsId != null){
+        	try {
+        		return newsDAO.getById(newsId);
+        	}catch (DAOException e){
+        		logger.error("Failed to get news by news id where newsId=" + newsId, e);
+        		throw new ServiceException(e);
+        	}
         }
+        throw new ServiceException();
     }
 
     /**
@@ -111,11 +116,13 @@ public class NewsServiceImpl implements NewsService{
      */
     @Override
     public void update(News news) throws ServiceException{
-        try {
-            newsDAO.update(news);
-        }catch (DAOException e){
-            logger.error("Failed to update news" + news, e);
-            throw new ServiceException(e);
+        if(news != null){
+        	try {
+        		newsDAO.update(news);
+        	}catch (DAOException e){
+        		logger.error("Failed to update news" + news, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 
@@ -126,11 +133,13 @@ public class NewsServiceImpl implements NewsService{
      */
     @Override
     public void delete(Long newsID) throws ServiceException{
-        try {
-            newsDAO.delete(newsID);
-        }catch (DAOException e){
-            logger.error("Failed to delete news where newsId=" + newsID, e);
-            throw new ServiceException(e);
+        if(newsID != null){
+        	try {
+        		newsDAO.delete(newsID);
+        	}catch (DAOException e){
+        		logger.error("Failed to delete news where newsId=" + newsID, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
     /**
@@ -140,7 +149,6 @@ public class NewsServiceImpl implements NewsService{
     @Override
     public List<NewsInfo> getAllNewsWithInfo() throws ServiceException{
     	List<NewsInfo> listNewsInfo = null;
-    	
     	List<News> listNews = null;
     	listNews = getAll();
     	listNewsInfo = getInfoNews(listNews);
@@ -154,16 +162,16 @@ public class NewsServiceImpl implements NewsService{
     @Override
     public List<NewsInfo> paginationNews(int from, int to) throws ServiceException{
     	List<NewsInfo> listNewsInfo = null;
-    	
     	List<News> listNews = null;
-    	try{
-    		listNews = newsDAO.paginationNews(from, to);
-    	}catch(DAOException e){
-    		logger.error("Failed to get news by position from=" + from + ", to=" + to, e);
-    		throw new ServiceException(e);
+    	if(from >= 0 && to >= 0){
+    		try{
+    			listNews = newsDAO.paginationNews(from, to);
+    		}catch(DAOException e){
+    			logger.error("Failed to get news by position from=" + from + ", to=" + to, e);
+    			throw new ServiceException(e);
+    		}
+    		listNewsInfo = getInfoNews(listNews);
     	}
-    	listNewsInfo = getInfoNews(listNews);
-    	
     	return listNewsInfo;
     }
     /**
@@ -173,33 +181,35 @@ public class NewsServiceImpl implements NewsService{
     public List<NewsInfo> searchNews(SearchParameter searchParameter) throws ServiceException{
     	List<NewsInfo> listNewsInfo = null;
     	List<News> listNews = null;
-    	if(searchParameter.getAuthor() != null && !searchParameter.getTagList().isEmpty()){
-    		try{
-    			listNews = newsDAO.getNewsByAuthorAndTag(searchParameter.getTagList().get(0).getIdTag(),
-    					searchParameter.getAuthor().getIdAuthor());
-    		}catch(DAOException e){
-    			logger.error("Failed to get news by authorId=" + searchParameter.getAuthor().getIdAuthor()
-    					+ " and tagId=" + searchParameter.getTagList().get(0).getIdTag(), e);
-    			throw new ServiceException(e);
-    		}
-    	}else{
-    		if(searchParameter.getAuthor() != null){
+    	if(searchParameter != null){
+    		if(searchParameter.getAuthor() != null && !searchParameter.getTagList().isEmpty()){
     			try{
-    				listNews = newsDAO.getNewsByAuthor(searchParameter.getAuthor().getIdAuthor());
+    				listNews = newsDAO.getNewsByAuthorAndTag(searchParameter.getTagList().get(0).getIdTag(),
+    					searchParameter.getAuthor().getIdAuthor());
     			}catch(DAOException e){
-    				logger.error("Failed to get news by authorId=" + searchParameter.getAuthor().getIdAuthor(), e);
+    				logger.error("Failed to get news by authorId=" + searchParameter.getAuthor().getIdAuthor()
+    					+ " and tagId=" + searchParameter.getTagList().get(0).getIdTag(), e);
     				throw new ServiceException(e);
     			}
     		}else{
-    			try{
-    				listNews = newsDAO.getNewsByTag(searchParameter.getTagList().get(0).getIdTag());
-    			}catch(DAOException e){
-    				logger.error("Failed to get news by tagId=" + searchParameter.getTagList().get(0).getIdTag(), e);
-    				throw new ServiceException(e);
+    			if(searchParameter.getAuthor() != null){
+    				try{
+    					listNews = newsDAO.getNewsByAuthor(searchParameter.getAuthor().getIdAuthor());
+    				}catch(DAOException e){
+    					logger.error("Failed to get news by authorId=" + searchParameter.getAuthor().getIdAuthor(), e);
+    					throw new ServiceException(e);
+    				}
+    			}else{
+    				try{
+    					listNews = newsDAO.getNewsByTag(searchParameter.getTagList().get(0).getIdTag());
+    				}catch(DAOException e){
+    					logger.error("Failed to get news by tagId=" + searchParameter.getTagList().get(0).getIdTag(), e);
+    					throw new ServiceException(e);
+    				}
     			}
     		}
+    		listNewsInfo = getInfoNews(listNews);
     	}
-    	listNewsInfo = getInfoNews(listNews);
     	return listNewsInfo;
     }
     /**
@@ -210,14 +220,16 @@ public class NewsServiceImpl implements NewsService{
      */
     private List<NewsInfo> getInfoNews(List<News> listNews) throws ServiceException{
     	List<NewsInfo> listNewsInfo = null;
-    	Iterator<News> newsIterator = listNews.iterator();
-    	listNewsInfo = new ArrayList<>();
-    	while(newsIterator.hasNext()){
-    		NewsInfo newsInfo = new NewsInfo();
-    		News news = newsIterator.next();
-    		newsInfo = getInfoForNews(news.getIdNews());
-    		newsInfo.setNews(news);
-    		listNewsInfo.add(newsInfo);
+    	if(listNews != null){
+    		Iterator<News> newsIterator = listNews.iterator();
+    		listNewsInfo = new ArrayList<>();
+    		while(newsIterator.hasNext()){
+    			NewsInfo newsInfo = new NewsInfo();
+    			News news = newsIterator.next();
+    			newsInfo = getInfoForNews(news.getIdNews());
+    			newsInfo.setNews(news);
+    			listNewsInfo.add(newsInfo);
+    		}
     	}
     	return listNewsInfo;
     }
@@ -229,33 +241,35 @@ public class NewsServiceImpl implements NewsService{
      * @throws ServiceException if some problems on DAO layer
      */
     private NewsInfo getInfoForNews(Long newsId) throws ServiceException{
+    	if(newsId != null){
+    		NewsInfo newsInfo = new NewsInfo();
+    		Author author = null;
+    		try{
+    			author = authorDAO.getAuthorForNews(newsId);    	
+    		}catch(DAOException e){
+    			logger.error("Failed to get author for news, where newsId=" + newsId, e);
+    			throw new ServiceException(e);
+    		}
+    		newsInfo.setAuthor(author);
+    		List<Tag> listTag = null;
+    		try{
+    			listTag = tagDAO.getAllTagsForNews(newsId);
+    		}catch(DAOException e){
+    			logger.error("Failed to get list tag for news, where newsId=" + newsId, e);
+    			throw new ServiceException(e);
+    		}
+    		newsInfo.setTags(listTag);
+    		List<Comment> listComment = null;
+    		try{
+    			listComment = commentDAO.getCommentList(newsId);
+    		}catch(DAOException e){
+    			logger.error("Failed to get list comments for news, where newsId=" + newsId, e);
+    			throw new ServiceException(e);
+    		}
+    		newsInfo.setComments(listComment);
     	
-    	NewsInfo newsInfo = new NewsInfo();
-		Author author = null;
-		try{
-			author = authorDAO.getAuthorForNews(newsId);    	
-		}catch(DAOException e){
-			logger.error("Failed to get author for news, where newsId=" + newsId, e);
-			throw new ServiceException(e);
-		}
-		newsInfo.setAuthor(author);
-		List<Tag> listTag = null;
-		try{
-			listTag = tagDAO.getAllTagsForNews(newsId);
-		}catch(DAOException e){
-			logger.error("Failed to get list tag for news, where newsId=" + newsId, e);
-			throw new ServiceException(e);
-		}
-		newsInfo.setTags(listTag);
-		List<Comment> listComment = null;
-		try{
-			listComment = commentDAO.getCommentList(newsId);
-		}catch(DAOException e){
-			logger.error("Failed to get list comments for news, where newsId=" + newsId, e);
-			throw new ServiceException(e);
-		}
-		newsInfo.setComments(listComment);
-    	
-		return newsInfo;
+    		return newsInfo;
+    	}
+    	throw new ServiceException();
     }
 }

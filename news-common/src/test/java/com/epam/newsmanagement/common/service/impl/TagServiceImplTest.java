@@ -43,10 +43,7 @@ public class TagServiceImplTest {
     @Test
     public void testCreate() throws ServiceException, DAOException {
         Tag tag = new Tag();
-        Long tagIdTo = new Long(1);
-        when(tagDAO.create(tag)).thenReturn(tagIdTo);
-        Long tagIdFrom = tagService.create(tag);
-        Assert.assertEquals(tagIdTo, tagIdFrom);
+        tagService.create(tag);
         verify(tagDAO).create(tag);
     }
 

@@ -33,12 +33,14 @@ public class CommentServiceImpl implements CommentService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
-    public Long create(Comment comment) throws ServiceException{
-        try {
-            return commentDAO.create(comment);
-        }catch (DAOException e){
-            logger.error("Failed to create comment" + comment, e);
-            throw new ServiceException(e);
+    public void create(Comment comment) throws ServiceException{
+        if(comment != null){
+        	try {
+        		commentDAO.create(comment);
+        	}catch (DAOException e){
+        		logger.error("Failed to create comment" + comment, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 
@@ -50,12 +52,15 @@ public class CommentServiceImpl implements CommentService{
      */
     @Override
     public Comment getById(Long commentId) throws ServiceException{
-        try {
-            return commentDAO.getById(commentId);
-        }catch (DAOException e){
-            logger.error("Failed to get comment by id=" + commentId, e);
-            throw new ServiceException(e);
+        if(commentId != null){
+        	try {
+        		return commentDAO.getById(commentId);
+        	}catch (DAOException e){
+        		logger.error("Failed to get comment by id=" + commentId, e);
+        		throw new ServiceException(e);
+        	}
         }
+        throw new ServiceException();
     }
 
     /**
@@ -95,11 +100,13 @@ public class CommentServiceImpl implements CommentService{
      */
     @Override
     public void update(Comment comment) throws ServiceException{
-        try{
-            commentDAO.update(comment);
-        }catch (DAOException e){
-            logger.error("Failed to update comment" + comment, e);
-            throw new ServiceException(e);
+        if(comment != null){
+        	try{
+        		commentDAO.update(comment);
+        	}catch (DAOException e){
+        		logger.error("Failed to update comment" + comment, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 
@@ -110,11 +117,13 @@ public class CommentServiceImpl implements CommentService{
      */
     @Override
     public void delete(Long commentId) throws ServiceException{
-        try {
-            commentDAO.delete(commentId);
-        }catch (DAOException e){
-            logger.error("Failed to delete comment by id=" + commentId, e);
-            throw new ServiceException(e);
+        if(commentId != null){
+        	try {
+        		commentDAO.delete(commentId);
+        	}catch (DAOException e){
+        		logger.error("Failed to delete comment by id=" + commentId, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 
@@ -126,12 +135,15 @@ public class CommentServiceImpl implements CommentService{
      */
     @Override
     public List<Comment> getCommentList(Long newsId) throws ServiceException{
-        try {
-            return commentDAO.getCommentList(newsId);
-        }catch (DAOException e){
-            logger.error("Failed to get comment list by news id where newsId=" + newsId, e);
-            throw new ServiceException(e);
+        if(newsId != null){
+        	try {
+        		return commentDAO.getCommentList(newsId);
+        	}catch (DAOException e){
+        		logger.error("Failed to get comment list by news id where newsId=" + newsId, e);
+        		throw new ServiceException(e);
+        	}
         }
+        throw new ServiceException();
     }
 
     /**
@@ -141,11 +153,13 @@ public class CommentServiceImpl implements CommentService{
      */
     @Override
     public void deleteCommentByNews(Long newsId) throws ServiceException{
-        try {
-            commentDAO.deleteCommentByNews(newsId);
-        }catch (DAOException e){
-            logger.error("Failed to delete comments by news where newsId=" + newsId, e);
-            throw new ServiceException(e);
+        if(newsId != null){
+        	try {
+        		commentDAO.deleteCommentByNews(newsId);
+        	}catch (DAOException e){
+        		logger.error("Failed to delete comments by news where newsId=" + newsId, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 }

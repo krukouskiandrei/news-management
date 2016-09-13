@@ -2,16 +2,18 @@ package com.epam.newsmanagement.common.dao.impl;
 
 import com.epam.newsmanagement.common.dao.CommentDAO;
 import com.epam.newsmanagement.common.dao.EntityDAO;
-import com.epam.newsmanagement.common.dao.util.ConnectionCloser;
+import com.epam.newsmanagement.common.dao.mapper.CommentMapper;
 import com.epam.newsmanagement.common.entity.Comment;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,22 +22,35 @@ import java.util.List;
 @Repository
 public class CommentDAOImpl implements CommentDAO{
 
-    private final static String INSERT_COMMENT_SQL = "INSERT INTO COMMENTS(COMMENT_ID, NEWS_ID, " +
-            "COMMENT_TEXT, CREATION_DATE) VALUES(COMMENT_SEQUENCE.NEXTVAL, ?, ?, ?)";
-    private final static String SELECT_COMMENT_BY_COMMENT_ID_SQL = "SELECT COMMENT_ID, NEWS_ID, COMMENT_TEXT, CREATION_DATE" +
-            " FROM COMMENTS WHERE COMMENT_ID = ?";
-    private final static String SELECT_ALL_COMMENTS_SQL = "SELECT COMMENT_ID, NEWS_ID, COMMENT_TEXT, CREATION_DATE FROM COMMENTS";
-    private final static String COMMENT_ID = "COMMENT_ID";
-    private final static String SELECT_COUNT_ALL_COMMENTS_SQL = "SELECT COUNT(COMMENT_ID) FROM COMMENTS";
-    private final static String UPDATE_COMMENT_BY_COMMENT_ID_SQL = "UPDATE COMMENTS SET NEWS_ID = ?, COMMENT_TEXT = ?, " +
-            "CREATION_DATE = ? WHERE COMMENT_ID = ?";
-    private final static String DELETE_COMMENT_BY_COMMENT_ID_SQL = "DELETE FROM COMMENTS WHERE COMMENT_ID = ?";
-    private final static String SELECT_COMMENT_BY_NEWS_ID_SQL = "SELECT COMMENT_ID, NEWS_ID, COMMENT_TEXT, CREATION_DATE " +
-            "FROM COMMENTS WHERE NEWS_ID = ?";
-    private final static String DELETE_COMMENT_BY_NEWS_ID_SQL = "DELETE FROM COMMENTS WHERE NEWS_ID = ?";
+    private final static String SQL_INSERT_COMMENT = "INSERT INTO COMMENTS(COMMENT_ID, NEWS_ID, COMMENT_TEXT, CREATION_DATE) "
+    												+ "VALUES(COMMENT_SEQUENCE.NEXTVAL, ?, ?, ?)";
+    private final static String SQL_SELECT_COMMENT_BY_COMMENT_ID = "SELECT COMMENT_ID, NEWS_ID, COMMENT_TEXT, CREATION_DATE "
+    																+ "FROM COMMENTS "
+    																+ "WHERE COMMENT_ID = ?";
+    private final static String SQL_SELECT_ALL_COMMENTS = "SELECT COMMENT_ID, NEWS_ID, COMMENT_TEXT, CREATION_DATE "
+    													+ "FROM COMMENTS";
+    private final static String SQL_SELECT_COUNT_ALL_COMMENTS = "SELECT COUNT(1) "
+    															+ "FROM COMMENTS";
+    private final static String SQL_UPDATE_COMMENT_BY_COMMENT_ID = "UPDATE COMMENTS "
+    																+ "SET NEWS_ID = ?, COMMENT_TEXT = ?, CREATION_DATE = ? "
+    																+ "WHERE COMMENT_ID = ?";
+    private final static String SQL_DELETE_COMMENT_BY_COMMENT_ID = "DELETE FROM COMMENTS "
+    																+ "WHERE COMMENT_ID = ?";
+    private final static String SQL_SELECT_COMMENT_BY_NEWS_ID = "SELECT COMMENT_ID, NEWS_ID, COMMENT_TEXT, CREATION_DATE "
+    															+ "FROM COMMENTS "
+    															+ "WHERE NEWS_ID = ?";
+    private final static String SQL_DELETE_COMMENT_BY_NEWS_ID = "DELETE FROM COMMENTS "
+    															+ "WHERE NEWS_ID = ?";
 
+    private final static Logger logger = LogManager.getLogger(CommentDAOImpl.class);
+    private DataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
+   
     @Autowired
-    DataSource dataSource;
+    public void setDataSource(DataSource dataSource){
+    	this.dataSource = dataSource;
+    	this.jdbcTemplate = new JdbcTemplate(this.dataSource);
+    }
 
     /**
      * Implementation of {@link EntityDAO#create(Serializable)}
@@ -44,30 +59,13 @@ public class CommentDAOImpl implements CommentDAO{
      * @throws DAOException if some problems in database
      */
     @Override
-    public Long create(Comment comment) throws DAOException{
-        Long commentId = null;
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(INSERT_COMMENT_SQL, new String[]{COMMENT_ID});
-
-            preparedStatement.setLong(1, comment.getIdNews());
-            preparedStatement.setString(2, comment.getCommentText());
-            preparedStatement.setTimestamp(3, comment.getCreationDate());
-            preparedStatement.executeUpdate();
-            resultSet = preparedStatement.getGeneratedKeys();
-            if (resultSet.next()){
-                commentId = resultSet.getLong(1);
-                comment.setIdComment(commentId);
-            }
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
+    public void create(Comment comment) throws DAOException{
+        if(comment != null){
+        	jdbcTemplate.update(SQL_INSERT_COMMENT, 
+        			new Object[]{comment.getIdNews(), 
+        					comment.getCommentText(), comment.getCreationDate()});
+        	logger.debug("Comment=" + comment + " insert in table Comment;");
         }
-        return commentId;
     }
 
     /**
@@ -79,42 +77,10 @@ public class CommentDAOImpl implements CommentDAO{
     @Override
     public Comment getById(Long commentId) throws DAOException{
         Comment comment = null;
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(SELECT_COMMENT_BY_COMMENT_ID_SQL);
-
-            preparedStatement.setLong(1, commentId);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()){
-                comment = createComment(resultSet);
-            }
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
-        }
-        return comment;
-    }
-
-    /**
-     * create {@link Comment} which get from database
-     * @param resultSet contains {@link Comment}
-     * @return created comment
-     * @throws DAOException if some problems in database
-     */
-    private Comment createComment(ResultSet resultSet) throws DAOException{
-        Comment comment = null;
-        try{
-            comment = new Comment();
-            comment.setIdComment(resultSet.getLong(1));
-            comment.setIdNews(resultSet.getLong(2));
-            comment.setCommentText(resultSet.getString(3));
-            comment.setCreationDate(resultSet.getTimestamp(4));
-        }catch (SQLException e){
-            throw new DAOException(e);
+        if(commentId != null){
+        	comment = jdbcTemplate.queryForObject(SQL_SELECT_COMMENT_BY_COMMENT_ID, 
+        			new Object[]{commentId}, new CommentMapper());
+        	logger.debug("Selected comment by commentId=" + commentId + ";");
         }
         return comment;
     }
@@ -127,24 +93,8 @@ public class CommentDAOImpl implements CommentDAO{
     @Override
     public List<Comment> getAll() throws DAOException {
         List<Comment> commentList = null;
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = dataSource.getConnection();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(SELECT_ALL_COMMENTS_SQL);
-
-            commentList = new ArrayList<Comment>();
-            while (resultSet.next()){
-                Comment comment = createComment(resultSet);
-                commentList.add(comment);
-            }
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, statement, resultSet);
-        }
+        commentList = jdbcTemplate.query(SQL_SELECT_ALL_COMMENTS, new CommentMapper());
+        logger.debug("All comments selected;");
         return commentList;
     }
 
@@ -156,22 +106,8 @@ public class CommentDAOImpl implements CommentDAO{
     @Override
     public Long countAll() throws DAOException{
         Long count = null;
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try{
-            connection = dataSource.getConnection();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(SELECT_COUNT_ALL_COMMENTS_SQL);
-            count = 0L;
-            if (resultSet.next()){
-                count = resultSet.getLong(1);
-            }
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, statement, resultSet);
-        }
+        count = jdbcTemplate.queryForObject(SQL_SELECT_COUNT_ALL_COMMENTS, Long.class);
+        logger.debug("All comments counted");
         return count;
     }
 
@@ -182,20 +118,11 @@ public class CommentDAOImpl implements CommentDAO{
      */
     @Override
     public void update(Comment comment) throws DAOException{
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(UPDATE_COMMENT_BY_COMMENT_ID_SQL);
-            preparedStatement.setLong(1, comment.getIdNews());
-            preparedStatement.setString(2, comment.getCommentText());
-            preparedStatement.setTimestamp(3, comment.getCreationDate());
-            preparedStatement.setLong(4, comment.getIdComment());
-            preparedStatement.executeUpdate();
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement);
+        if(comment != null){
+        	jdbcTemplate.update(SQL_UPDATE_COMMENT_BY_COMMENT_ID, 
+        			new Object[]{comment.getIdNews(), comment.getCommentText(), 
+        					comment.getCreationDate(), comment.getIdComment()});
+        	logger.debug("Comment=" + comment + " updated in table Comments;");
         }
     }
 
@@ -206,17 +133,10 @@ public class CommentDAOImpl implements CommentDAO{
      */
     @Override
     public void delete(Long commentId) throws DAOException{
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(DELETE_COMMENT_BY_COMMENT_ID_SQL);
-            preparedStatement.setLong(1, commentId);
-            preparedStatement.executeUpdate();
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement);
+        if(commentId != null){
+        	jdbcTemplate.update(SQL_DELETE_COMMENT_BY_COMMENT_ID, 
+        			new Object[]{commentId});
+        	logger.debug("Comment with commentId=" + commentId + " deleted from table Comment;");
         }
     }
 
@@ -229,25 +149,10 @@ public class CommentDAOImpl implements CommentDAO{
     @Override
     public List<Comment> getCommentList(Long newsId) throws DAOException{
         List<Comment> commentList = null;
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(SELECT_COMMENT_BY_NEWS_ID_SQL);
-
-            preparedStatement.setLong(1, newsId);
-            resultSet = preparedStatement.executeQuery();
-
-            commentList = new ArrayList<Comment>();
-            while (resultSet.next()){
-                Comment comment = createComment(resultSet);
-                commentList.add(comment);
-            }
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement, resultSet);
+        if(newsId != null){
+        	commentList = jdbcTemplate.query(SQL_SELECT_COMMENT_BY_NEWS_ID, 
+        			new Object[]{newsId}, new CommentMapper());
+        	logger.debug("Selected comments by newsId=" + newsId + ";");
         }
         return commentList;
     }
@@ -259,17 +164,10 @@ public class CommentDAOImpl implements CommentDAO{
      */
     @Override
     public void deleteCommentByNews(Long newsId) throws DAOException{
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(DELETE_COMMENT_BY_NEWS_ID_SQL);
-            preparedStatement.setLong(1, newsId);
-            preparedStatement.executeUpdate();
-        }catch (SQLException e){
-            throw new DAOException(e);
-        }finally {
-            ConnectionCloser.closeConnection(connection, dataSource, preparedStatement);
+        if(newsId != null){
+        	jdbcTemplate.update(SQL_DELETE_COMMENT_BY_NEWS_ID, 
+        			new Object[]{newsId});
+        	logger.debug("All comments for news where newsId=" + newsId + " deleted");
         }
     }
 

@@ -43,10 +43,7 @@ public class AuthorServiceImplTest {
     @Test
     public void testCreate() throws ServiceException, DAOException{
         Author author = new Author();
-        Long authorIdTo = new Long(1);
-        when(authorDAO.create(author)).thenReturn(authorIdTo);
-        Long authorIdFrom = authorService.create(author);
-        Assert.assertEquals(authorIdTo, authorIdFrom);
+        authorDAO.create(author);
         verify(authorDAO).create(author);
     }
 

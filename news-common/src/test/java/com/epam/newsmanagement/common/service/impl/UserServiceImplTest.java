@@ -43,10 +43,7 @@ public class UserServiceImplTest {
     @Test
     public void testCreate() throws ServiceException, DAOException {
         User user = new User();
-        Long userIdTo = new Long(1);
-        when(userDAO.create(user)).thenReturn(userIdTo);
-        Long userIdFrom = userService.create(user);
-        Assert.assertEquals(userIdTo, userIdFrom);
+        userService.create(user);
         verify(userDAO).create(user);
     }
 

@@ -33,12 +33,14 @@ public class TagServiceImpl implements TagService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
-    public Long create(Tag tag) throws ServiceException{
-        try {
-            return tagDAO.create(tag);
-        }catch (DAOException e){
-            logger.error("Failed to create tag" + tag, e);
-            throw new ServiceException(e);
+    public void create(Tag tag) throws ServiceException{
+        if(tag != null){
+        	try {
+        		tagDAO.create(tag);
+        	}catch (DAOException e){
+        		logger.error("Failed to create tag" + tag, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 
@@ -50,12 +52,15 @@ public class TagServiceImpl implements TagService{
      */
     @Override
     public Tag getById(Long tagId) throws ServiceException{
-        try {
-            return tagDAO.getById(tagId);
-        }catch (DAOException e){
-            logger.error("Failed to get tag by tag id where tagId=" + tagId, e);
-            throw new ServiceException(e);
+        if(tagId != null){
+        	try {
+        		return tagDAO.getById(tagId);
+        	}catch (DAOException e){
+        		logger.error("Failed to get tag by tag id where tagId=" + tagId, e);
+        		throw new ServiceException(e);
+        	}
         }
+        throw new ServiceException();
     }
 
     /**
@@ -95,12 +100,14 @@ public class TagServiceImpl implements TagService{
      */
     @Override
     public void update(Tag tag) throws ServiceException{
-        try {
-            tagDAO.update(tag);
-        }catch (DAOException e){
-            logger.error("Failed to update tag" + tag, e);
-            throw new ServiceException(e);
-        }
+        if(tag != null){
+        	try {
+        		tagDAO.update(tag);
+        	}catch (DAOException e){
+        		logger.error("Failed to update tag" + tag, e);
+        		throw new ServiceException(e);
+        	}
+    	}
     }
 
     /**
@@ -110,11 +117,13 @@ public class TagServiceImpl implements TagService{
      */
     @Override
     public void delete(Long tagId) throws ServiceException{
-        try {
-            tagDAO.delete(tagId);
-        }catch (DAOException e){
-            logger.error("Failed to delete tag by tag id where tagId=" + tagId, e);
-            throw new ServiceException(e);
+        if(tagId != null){
+        	try {
+        		tagDAO.delete(tagId);
+        	}catch (DAOException e){
+        		logger.error("Failed to delete tag by tag id where tagId=" + tagId, e);
+        		throw new ServiceException(e);
+        	}
         }
     }
 }

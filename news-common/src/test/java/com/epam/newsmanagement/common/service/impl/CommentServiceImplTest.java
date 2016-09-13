@@ -43,10 +43,7 @@ public class CommentServiceImplTest {
     @Test
     public void testCreate() throws ServiceException, DAOException {
         Comment comment = new Comment();
-        Long commentIdTo = new Long(1);
-        when(commentDAO.create(comment)).thenReturn(commentIdTo);
-        Long commentIdFrom = commentService.create(comment);
-        Assert.assertEquals(commentIdTo, commentIdFrom);
+        commentService.create(comment);
         verify(commentDAO).create(comment);
     }
 

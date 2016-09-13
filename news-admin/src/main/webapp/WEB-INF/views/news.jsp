@@ -100,8 +100,8 @@
 <div id="page-buttons">
   		
 </div>
-</div> --%>
-
+</div>
+ --%>
 <script src="${pageContext.request.contextPath}/resources/script/jquery-3.1.0.min.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/resources/script/createChangePageButtons.js" type="text/javascript"></script>
 <script>
