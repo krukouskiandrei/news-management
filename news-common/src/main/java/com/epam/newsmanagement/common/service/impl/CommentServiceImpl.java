@@ -33,6 +33,7 @@ public class CommentServiceImpl implements CommentService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void create(Comment comment) throws ServiceException{
         if(comment != null){
         	try {
@@ -51,6 +52,7 @@ public class CommentServiceImpl implements CommentService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public Comment getById(Long commentId) throws ServiceException{
         if(commentId != null){
         	try {
@@ -69,6 +71,7 @@ public class CommentServiceImpl implements CommentService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public List<Comment> getAll() throws ServiceException{
         try {
             return commentDAO.getAll();
@@ -84,6 +87,7 @@ public class CommentServiceImpl implements CommentService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public Long countAll() throws ServiceException{
         try {
             return commentDAO.countAll();
@@ -99,6 +103,7 @@ public class CommentServiceImpl implements CommentService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void update(Comment comment) throws ServiceException{
         if(comment != null){
         	try{
@@ -116,6 +121,7 @@ public class CommentServiceImpl implements CommentService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void delete(Long commentId) throws ServiceException{
         if(commentId != null){
         	try {
@@ -134,6 +140,7 @@ public class CommentServiceImpl implements CommentService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public List<Comment> getCommentList(Long newsId) throws ServiceException{
         if(newsId != null){
         	try {
@@ -152,6 +159,7 @@ public class CommentServiceImpl implements CommentService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void deleteCommentByNews(Long newsId) throws ServiceException{
         if(newsId != null){
         	try {

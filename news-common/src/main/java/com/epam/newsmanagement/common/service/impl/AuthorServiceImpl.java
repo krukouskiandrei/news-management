@@ -33,6 +33,7 @@ public class AuthorServiceImpl implements AuthorService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void create(Author author) throws ServiceException{
         if(author != null){
         	try {
@@ -51,6 +52,7 @@ public class AuthorServiceImpl implements AuthorService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public Author getById(Long authorId) throws ServiceException{
         if(authorId != null){
         	try {
@@ -69,6 +71,7 @@ public class AuthorServiceImpl implements AuthorService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public List<Author> getAll() throws ServiceException{
         try{
             return authorDAO.getAll();
@@ -84,6 +87,7 @@ public class AuthorServiceImpl implements AuthorService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public Long countAll() throws ServiceException{
         try{
             return authorDAO.countAll();
@@ -99,6 +103,7 @@ public class AuthorServiceImpl implements AuthorService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void update(Author author) throws ServiceException{
         if(author != null){
         	try{
@@ -116,6 +121,7 @@ public class AuthorServiceImpl implements AuthorService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void delete(Long authorId) throws ServiceException{
         if(authorId != null){
         	try {

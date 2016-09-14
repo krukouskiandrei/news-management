@@ -33,6 +33,7 @@ public class TagServiceImpl implements TagService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void create(Tag tag) throws ServiceException{
         if(tag != null){
         	try {
@@ -51,6 +52,7 @@ public class TagServiceImpl implements TagService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public Tag getById(Long tagId) throws ServiceException{
         if(tagId != null){
         	try {
@@ -69,6 +71,7 @@ public class TagServiceImpl implements TagService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public List<Tag> getAll() throws ServiceException{
         try {
             return tagDAO.getAll();
@@ -84,6 +87,7 @@ public class TagServiceImpl implements TagService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public Long countAll() throws ServiceException{
         try {
             return tagDAO.countAll();
@@ -99,6 +103,7 @@ public class TagServiceImpl implements TagService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void update(Tag tag) throws ServiceException{
         if(tag != null){
         	try {
@@ -116,6 +121,7 @@ public class TagServiceImpl implements TagService{
      * @throws ServiceException if some problems in database
      */
     @Override
+    @Transactional
     public void delete(Long tagId) throws ServiceException{
         if(tagId != null){
         	try {

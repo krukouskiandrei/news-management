@@ -49,6 +49,7 @@ public class NewsServiceImpl implements NewsService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void create(News news) throws ServiceException{
         if(news != null){
         	try {
@@ -67,6 +68,7 @@ public class NewsServiceImpl implements NewsService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public News getById(Long newsId) throws ServiceException{
         if(newsId != null){
         	try {
@@ -85,6 +87,7 @@ public class NewsServiceImpl implements NewsService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public List<News> getAll() throws ServiceException{
         try {
             return newsDAO.getAll();
@@ -100,6 +103,7 @@ public class NewsServiceImpl implements NewsService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public Long countAll() throws ServiceException{
         try {
             return newsDAO.countAll();
@@ -115,6 +119,7 @@ public class NewsServiceImpl implements NewsService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void update(News news) throws ServiceException{
         if(news != null){
         	try {
@@ -132,6 +137,7 @@ public class NewsServiceImpl implements NewsService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void delete(Long newsID) throws ServiceException{
         if(newsID != null){
         	try {
@@ -147,6 +153,7 @@ public class NewsServiceImpl implements NewsService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public List<NewsInfo> getAllNewsWithInfo() throws ServiceException{
     	List<NewsInfo> listNewsInfo = null;
     	List<News> listNews = null;
@@ -160,6 +167,7 @@ public class NewsServiceImpl implements NewsService{
      * throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public List<NewsInfo> paginationNews(int from, int to) throws ServiceException{
     	List<NewsInfo> listNewsInfo = null;
     	List<News> listNews = null;
@@ -178,6 +186,7 @@ public class NewsServiceImpl implements NewsService{
      * Implementation {@link NewsService#searchNews(SearchParameter)
      */
     @Override
+    @Transactional(readOnly = true)
     public List<NewsInfo> searchNews(SearchParameter searchParameter) throws ServiceException{
     	List<NewsInfo> listNewsInfo = null;
     	List<News> listNews = null;
@@ -240,6 +249,7 @@ public class NewsServiceImpl implements NewsService{
      * @return {@link NewsInfo}
      * @throws ServiceException if some problems on DAO layer
      */
+    @Transactional(readOnly = true)
     private NewsInfo getInfoForNews(Long newsId) throws ServiceException{
     	if(newsId != null){
     		NewsInfo newsInfo = new NewsInfo();

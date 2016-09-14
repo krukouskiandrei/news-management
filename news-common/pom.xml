@@ -23,9 +23,21 @@
     <dependency>
     	<groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.12</version>
-        
+        <version>4.12</version>        
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+	<dependency>
+    	<groupId>org.springframework</groupId>
+    	<artifactId>spring-context</artifactId>
+    	<version>4.3.2.RELEASE</version>
+	</dependency>
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-tx -->
+	<dependency>
+    	<groupId>org.springframework</groupId>
+    	<artifactId>spring-tx</artifactId>
+    	<version>4.3.2.RELEASE</version>
+	</dependency>
+    
     <!-- https://mvnrepository.com/artifact/org.dbunit/dbunit -->
     <dependency>
   		<groupId>org.dbunit</groupId>

@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void create(User user) throws ServiceException{
         if(user != null){
         	try {
@@ -51,6 +52,7 @@ public class UserServiceImpl implements UserService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public User getById(Long userId) throws ServiceException{
         if(userId != null){
         	try {
@@ -69,6 +71,7 @@ public class UserServiceImpl implements UserService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public List<User> getAll() throws ServiceException{
         try {
             return userDAO.getAll();
@@ -84,6 +87,7 @@ public class UserServiceImpl implements UserService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public Long countAll() throws ServiceException{
         try {
             return userDAO.countAll();
@@ -99,6 +103,7 @@ public class UserServiceImpl implements UserService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void update(User user) throws ServiceException{
         if(user != null){
         	try {
@@ -116,6 +121,7 @@ public class UserServiceImpl implements UserService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void delete(Long userId) throws ServiceException{
         if(userId != null){
         	try {
@@ -134,6 +140,7 @@ public class UserServiceImpl implements UserService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public boolean checkUser(Long userId) throws ServiceException{
         if(userId != null){
         	try {
@@ -154,6 +161,7 @@ public class UserServiceImpl implements UserService{
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public User getUser(String login, String password) throws ServiceException{
         if(login != null && password != null){
         	try {

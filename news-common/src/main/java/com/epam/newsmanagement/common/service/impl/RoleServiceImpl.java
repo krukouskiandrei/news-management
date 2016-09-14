@@ -33,6 +33,7 @@ public class RoleServiceImpl implements RoleService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void create(Role role) throws ServiceException{
         if(role != null){
         	try {
@@ -51,6 +52,7 @@ public class RoleServiceImpl implements RoleService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public Role getById(Long userId) throws ServiceException{
         if(userId != null){
         	try {
@@ -69,6 +71,7 @@ public class RoleServiceImpl implements RoleService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public List<Role> getAll() throws ServiceException{
         try {
             return roleDAO.getAll();
@@ -84,6 +87,7 @@ public class RoleServiceImpl implements RoleService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional(readOnly = true)
     public Long countAll() throws ServiceException{
         try {
             return roleDAO.countAll();
@@ -99,6 +103,7 @@ public class RoleServiceImpl implements RoleService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void update(Role role) throws ServiceException{
         if(role != null){
         	try {
@@ -116,6 +121,7 @@ public class RoleServiceImpl implements RoleService {
      * @throws ServiceException if some problems on DAO layer
      */
     @Override
+    @Transactional
     public void delete(Long userID) throws ServiceException{
         if(userID != null){
         	try {

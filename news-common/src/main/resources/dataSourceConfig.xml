@@ -10,9 +10,9 @@
      <tx:annotation-driven proxy-target-class="true"
      transaction-manager="transactionManager"/>
      
-     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+     <!-- <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
      	<property name="location" value="classpath:dbConfig.properties"/>
-     </bean>
+     </bean> -->
      
      <bean id="transactionManager" 
      class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
