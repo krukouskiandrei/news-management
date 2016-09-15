@@ -34,15 +34,16 @@ public class AuthorServiceImpl implements AuthorService {
      */
     @Override
     @Transactional
-    public void create(Author author) throws ServiceException{
+    public Long create(Author author) throws ServiceException{
         if(author != null){
         	try {
-        		authorDAO.create(author);
+        		return authorDAO.create(author);
         	}catch (DAOException e){
         		logger.error("Failed to create author" + author, e);
         		throw new ServiceException(e);
         	}
     	}
+        throw new ServiceException();
     }
 
     /**

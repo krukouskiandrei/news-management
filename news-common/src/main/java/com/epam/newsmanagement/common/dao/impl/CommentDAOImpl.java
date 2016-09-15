@@ -10,10 +10,16 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -59,13 +65,23 @@ public class CommentDAOImpl implements CommentDAO{
      * @throws DAOException if some problems in database
      */
     @Override
-    public void create(Comment comment) throws DAOException{
-        if(comment != null){
-        	jdbcTemplate.update(SQL_INSERT_COMMENT, 
-        			new Object[]{comment.getIdNews(), 
-        					comment.getCommentText(), comment.getCreationDate()});
-        	logger.debug("Comment=" + comment + " insert in table Comment;");
-        }
+    public Long create(Comment comment) throws DAOException{
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+    	if(comment != null){
+    		jdbcTemplate.update(
+    				new PreparedStatementCreator() {						
+						@Override
+						public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+							PreparedStatement pst = con.prepareStatement(SQL_INSERT_COMMENT, new String[] {"comment_id"});
+							pst.setLong(1, comment.getIdNews());
+							pst.setString(2, comment.getCommentText());
+							pst.setTimestamp(3, comment.getCreationDate());
+							return pst;
+						}
+					}, 
+    				keyHolder);
+    	}
+    	return (Long)keyHolder.getKey().longValue();
     }
 
     /**

@@ -10,10 +10,16 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -23,7 +29,7 @@ import java.util.List;
 public class AuthorDAOImpl implements AuthorDAO {
 
     private final static String SQL_INSER_AUTHOR = "INSERT INTO AUTHOR(AUTHOR_ID, AUTHOR_NAME, EXPIRED) "
-    												+ "VALUES(AUTHOR_SEQUENCE.NEXTVAL, ?, ?);";
+    												+ "VALUES(AUTHOR_SEQUENCE.NEXTVAL, ?, ?)";
     private final static String SQL_SELECT_AUTHOR_BY_AUTHOR_ID = "SELECT AUTHOR_ID, AUTHOR_NAME, EXPIRED " +
             														"FROM AUTHOR "
             														+ "WHERE AUTHOR_ID = ?";
@@ -57,12 +63,22 @@ public class AuthorDAOImpl implements AuthorDAO {
      * @throws DAOException if some problems in database
      */
     @Override
-    public void create(Author author) throws DAOException{
-        if(author != null){
-        	jdbcTemplate.update(SQL_INSER_AUTHOR, 
-        			new Object[]{author.getAuthorName(), author.getExpiredDate()});
-        	logger.debug("Author=" + author + " inserted in table Author;");
-        }
+    public Long create(Author author) throws DAOException{
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+    	if(author != null){
+    		jdbcTemplate.update(
+    				new PreparedStatementCreator() {						
+						@Override
+						public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+							PreparedStatement pst = con.prepareStatement(SQL_INSER_AUTHOR, new String[] {"author_id"});
+							pst.setString(1, author.getAuthorName());
+							pst.setTimestamp(2, author.getExpiredDate());
+							return pst;
+						}
+					}, 
+    				keyHolder);
+    	}
+    	return (Long)keyHolder.getKey().longValue();
     }
 
     /**

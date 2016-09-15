@@ -11,10 +11,16 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -24,7 +30,7 @@ import java.util.List;
 public class UserDAOImpl implements UserDAO {
 
     private final static String SQL_INSER_USER = "INSERT INTO CUSTOMER (USER_ID, USER_NAME, LOGIN, PASSWORD)" +
-            									" VALUES(CUSTOMER_SEQUENCE.NEXTVAL, ?, ?, ?);";
+            									" VALUES(CUSTOMER_SEQUENCE.NEXTVAL, ?, ?, ?)";
     private final static String SQL_SELECT_USER_BY_USER_ID = "SELECT USER_ID, USER_NAME, LOGIN, PASSWORD "
     														+ "FROM CUSTOMER "
     														+ "WHERE USER_ID = ?";
@@ -60,14 +66,25 @@ public class UserDAOImpl implements UserDAO {
      * @throws DAOException if some problems in database
      */
     @Override
-    public void create(User user) throws DAOException{
-        if(user != null){
-        	jdbcTemplate.update(SQL_INSER_USER, 
-        			new Object[]{user.getUserName(), user.getLogin(), user.getPassword()});
-        	logger.debug("User=" + user + " inserted in table Customer;");
-        }
+    public Long create(User user) throws DAOException{
+    	KeyHolder keyHolder = new GeneratedKeyHolder();
+    	if(user != null){
+    		jdbcTemplate.update(
+    				new PreparedStatementCreator() {						
+						@Override
+						public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+							PreparedStatement pst = con.prepareStatement(SQL_INSER_USER, new String[] {"user_id"});
+							pst.setString(1, user.getUserName());
+							pst.setString(2, user.getLogin());
+							pst.setString(3, user.getPassword());
+							return pst;
+						}
+					}, 
+    				keyHolder);
+    	}
+    	return (Long)keyHolder.getKey().longValue();
     }
-
+    
     /**
      * Implementation of {@link EntityDAO#getById(Long)}
      * @param userId is the field on which the search

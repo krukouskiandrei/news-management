@@ -16,7 +16,7 @@ public interface EntityService<Entity extends Serializable, ID> {
      * @return id of created entity
      * @throws ServiceException if some problems on DAO layer
      */
-    void create(Entity object) throws ServiceException;
+    ID create(Entity object) throws ServiceException;
 
     /**
      * Use {@link Entity} DAO layer for finding {@link Entity} by id in database

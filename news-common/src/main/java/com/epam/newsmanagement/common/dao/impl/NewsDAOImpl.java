@@ -10,10 +10,16 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -72,13 +78,25 @@ public class NewsDAOImpl implements NewsDAO {
      * @throws DAOException if some problems in database
      */
     @Override
-    public void create(News news) throws DAOException{
+    public Long create(News news) throws DAOException{
+    	KeyHolder keyHolder = new GeneratedKeyHolder();
     	if(news != null){
-    		jdbcTemplate.update(SQL_INSERT_NEWS, 
-    				new Object[]{news.getTitle(), news.getShortText(), 
-    						news.getFullText(), news.getCreationDate(), news.getModificationDate()});
-    		logger.debug("News=" + news + " inserted in table News;");
+    		jdbcTemplate.update(
+    				new PreparedStatementCreator() {						
+						@Override
+						public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+							PreparedStatement pst = con.prepareStatement(SQL_INSERT_NEWS, new String[] {"news_id"});
+							pst.setString(1, news.getTitle());
+							pst.setString(2, news.getShortText());
+							pst.setString(3, news.getFullText());
+							pst.setTimestamp(4, news.getCreationDate());
+							pst.setDate(5, news.getModificationDate());
+							return pst;
+						}
+					}, 
+    				keyHolder);
     	}
+    	return (Long)keyHolder.getKey().longValue();
     }
 
     /**
