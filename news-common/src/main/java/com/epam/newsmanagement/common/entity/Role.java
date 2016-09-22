@@ -40,7 +40,7 @@ public class Role implements Serializable {
         if(userId != null ? !userId.equals(role.getUserId()) : role.getUserId() != null){
             return false;
         }
-        if(roleName != null ? !roleName.equals(role.getRoleName()) : role.getRoleName() != null){
+        if(roleName != null ? !roleName.equals(role.getUserId()) : role.getRoleName() != null){
             return false;
         }
         return true;

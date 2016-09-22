@@ -50,16 +50,15 @@ public class NewsServiceImpl implements NewsService{
      */
     @Override
     @Transactional
-    public Long create(News news) throws ServiceException{
+    public void create(News news) throws ServiceException{
         if(news != null){
         	try {
-        		return newsDAO.create(news);
+        		newsDAO.create(news);
         	}catch (DAOException e){
         		logger.error("Failed to create news" + news, e);
         		throw new ServiceException(e);
         	}
         }
-        throw new ServiceException();
     }
 
     /**

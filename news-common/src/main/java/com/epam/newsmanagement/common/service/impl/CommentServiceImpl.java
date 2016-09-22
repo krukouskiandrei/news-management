@@ -34,16 +34,15 @@ public class CommentServiceImpl implements CommentService{
      */
     @Override
     @Transactional
-    public Long create(Comment comment) throws ServiceException{
+    public void create(Comment comment) throws ServiceException{
         if(comment != null){
         	try {
-        		return commentDAO.create(comment);
+        		commentDAO.create(comment);
         	}catch (DAOException e){
         		logger.error("Failed to create comment" + comment, e);
         		throw new ServiceException(e);
         	}
         }
-        throw new ServiceException();
     }
 
     /**

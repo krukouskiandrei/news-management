@@ -34,16 +34,15 @@ public class TagServiceImpl implements TagService{
      */
     @Override
     @Transactional
-    public Long create(Tag tag) throws ServiceException{
+    public void create(Tag tag) throws ServiceException{
         if(tag != null){
         	try {
-        		return tagDAO.create(tag);
+        		tagDAO.create(tag);
         	}catch (DAOException e){
         		logger.error("Failed to create tag" + tag, e);
         		throw new ServiceException(e);
         	}
         }
-        throw new ServiceException();
     }
 
     /**

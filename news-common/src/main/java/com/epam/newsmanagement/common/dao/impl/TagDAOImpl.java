@@ -10,16 +10,10 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -64,21 +58,12 @@ public class TagDAOImpl implements TagDAO {
      * @throws DAOException if some problems in database
      */
     @Override
-    public Long create(Tag tag) throws DAOException {
-    	KeyHolder keyHolder = new GeneratedKeyHolder();
+    public void create(Tag tag) throws DAOException {
     	if(tag != null){
-    		jdbcTemplate.update(
-    				new PreparedStatementCreator() {						
-						@Override
-						public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-							PreparedStatement pst = con.prepareStatement(SQL_INSERT_TAG, new String[] {"tag_id"});
-							pst.setString(1, tag.getTagName());
-							return pst;
-						}
-					}, 
-    				keyHolder);
+    		jdbcTemplate.update(SQL_INSERT_TAG, 
+    				new Object[]{tag.getTagName()});
+    		logger.debug("Tag=" + tag + " inserted in table Tag;");
     	}
-    	return (Long)keyHolder.getKey().longValue();
     }
 
     /**

@@ -34,16 +34,15 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     @Transactional
-    public Long create(User user) throws ServiceException{
+    public void create(User user) throws ServiceException{
         if(user != null){
         	try {
-        		return userDAO.create(user);
+        		userDAO.create(user);
         	}catch (DAOException e){
         		logger.error("Failed to create user" + user, e);
         		throw new ServiceException(e);
         	}
         }
-        throw new ServiceException();
     }
 
     /**

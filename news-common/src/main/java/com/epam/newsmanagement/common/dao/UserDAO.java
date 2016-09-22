@@ -24,5 +24,6 @@ public interface UserDAO extends EntityDAO<User, Long> {
      * @throws DAOException if some problems in database
      */
     User getUser(String login, String password) throws DAOException;
-    
+
+
 }

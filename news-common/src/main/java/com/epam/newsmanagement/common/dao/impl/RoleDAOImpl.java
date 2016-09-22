@@ -55,14 +55,12 @@ public class RoleDAOImpl implements RoleDAO{
      * @throws DAOException if some problems in database
      */
    @Override
-    public Long create(Role role) throws DAOException{
+    public void create(Role role) throws DAOException{
 	   if(role != null){
 		   jdbcTemplate.update(SQL_INSERT_ROLE, 
 				   new Object[]{role.getUserId(), role.getRoleName()});
 		   logger.debug("Role=" + role + " inserted in table Role;");
-		   return role.getUserId();
 	   }
-	   throw new DAOException();
    }
 
     /**

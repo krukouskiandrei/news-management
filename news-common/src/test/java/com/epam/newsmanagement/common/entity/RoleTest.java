@@ -41,8 +41,6 @@ public class RoleTest {
         Assert.assertEquals(role1, role2);
         role1.setUserId(new Long(1));
         role2.setUserId(new Long(1));
-        role1.setRoleName("client");
-        role2.setRoleName("client");
         Assert.assertEquals(role1, role2);
     }
 

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<dataset>
-	<CUSTOMER user_id="1" user_name="Alex" login="alex" password="alex08" />
-	<CUSTOMER user_id="2" user_name="Mary" login="mary" password="mary69" />
-	<ROLES USER_ID="1" ROLE_NAME="admin"/>
-	<ROLES USER_ID="2" ROLE_NAME="client"/>	
-</dataset>

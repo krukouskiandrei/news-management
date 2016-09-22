@@ -34,16 +34,15 @@ public class RoleServiceImpl implements RoleService {
      */
     @Override
     @Transactional
-    public Long create(Role role) throws ServiceException{
+    public void create(Role role) throws ServiceException{
         if(role != null){
         	try {
-        		return roleDAO.create(role);
+        		roleDAO.create(role);
         	}catch (DAOException e){
         		logger.error("Failed to create role" + role, e);
         		throw new ServiceException(e);
         	}
         }
-        throw new ServiceException();
     }
 
     /**
