@@ -18,7 +18,7 @@ public interface EntityDAO<Entity extends Serializable, ID> {
      * @return id of created entity
      * @throws DAOException if some problems in database
      */
-    void create(Entity object) throws DAOException;
+    ID create(Entity object) throws DAOException;
 
     /**
      * find {@link Entity} by id
