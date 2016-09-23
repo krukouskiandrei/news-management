@@ -307,4 +307,65 @@ public class NewsServiceImplTest {
     	List<NewsInfo> resultNewsInfoList = newsService.searchNews(searchParameter);
     	Assert.assertEquals(newsInfoList, resultNewsInfoList);
     }
+    
+    /**
+     * testing method {@link NewsService#createFullNews(NewsInfo)}
+     * @throws ServiceException
+     * @throws DAOException
+     */
+    @Test
+    public void createFullNewsTest() throws ServiceException, DAOException{
+    	News news = new News();
+    	news.setTitle("Title");
+    	Author author = new Author();
+    	author.setIdAuthor(new Long(1));
+    	Tag tag = new Tag();
+    	tag.setIdTag(new Long(1));
+    	Tag tag2 = new Tag();
+    	tag2.setIdTag(new Long(2));
+    	List<Tag> listTag = new ArrayList<>();
+    	listTag.add(tag);
+    	listTag.add(tag2);
+    	NewsInfo newsInfo = new NewsInfo();
+    	newsInfo.setNews(news);
+    	newsInfo.setAuthor(author);
+    	newsInfo.setTags(listTag);
+    	newsService.createFullNews(newsInfo);
+    	verify(newsDAO).create(news);
+    	verify(newsDAO).createNewsAuthorLink(news.getIdNews(), author.getIdAuthor());
+    	verify(newsDAO).createNewsTagLink(news.getIdNews(), listTag.get(0).getIdTag());
+    	verify(newsDAO).createNewsTagLink(news.getIdNews(), listTag.get(1).getIdTag());
+    }
+    
+    @Test
+    public void getFullNewsTest() throws ServiceException, DAOException{
+    	Long id1 = new Long(1);
+    	NewsInfo newsInfo1 = new NewsInfo();
+    	News news1 = new News();
+    	news1.setIdNews(id1);
+    	newsInfo1.setNews(news1);
+    	when(newsDAO.getById(id1)).thenReturn(news1);
+    	Author author1 = new Author();
+    	author1.setIdAuthor(id1);
+    	newsInfo1.setAuthor(author1);
+    	when(authorDAO.getAuthorForNews(id1)).thenReturn(author1);
+    	Tag tag1 = new Tag();
+    	tag1.setIdTag(id1);
+    	List<Tag> listTag1 = new ArrayList<>();
+    	listTag1.add(tag1);
+    	newsInfo1.setTags(listTag1);
+    	when(tagDAO.getAllTagsForNews(id1)).thenReturn(listTag1);
+    	Comment comment1 = new Comment();
+    	comment1.setIdComment(id1);
+    	List<Comment> listComment1 = new ArrayList<>();
+    	listComment1.add(comment1);
+    	newsInfo1.setComments(listComment1);
+    	when(commentDAO.getCommentList(id1)).thenReturn(listComment1);
+    	NewsInfo resultNewsInfo = newsService.getFullNews(id1);
+    	Assert.assertEquals(newsInfo1, resultNewsInfo);
+    	verify(commentDAO).getCommentList(id1);
+    	verify(tagDAO).getAllTagsForNews(id1);
+    	verify(authorDAO).getAuthorForNews(id1);
+    	verify(newsDAO).getById(id1);
+    }
 }

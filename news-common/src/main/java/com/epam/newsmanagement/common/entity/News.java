@@ -1,9 +1,11 @@
 package com.epam.newsmanagement.common.entity;
 
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotBlank;
 
-import javax.validation.constraints.NotNull;
+
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -18,17 +20,17 @@ public class News implements Serializable {
     private static final SimpleDateFormat dayMonthYearFormatter = new SimpleDateFormat("MM/dd/yyyy");
     
     private Long idNews;
-    @NotBlank
-    @Length(max = 30)
+    
+    @NotEmpty @Size(min=2, max=30)
     private String title;
-    @NotBlank
-    @Length(max = 100)
+    
+    @NotEmpty @Size(min=10, max=100)
     private String shortText;
-    @NotBlank
-    @Length(max = 2000)
+    
+    @NotEmpty @Size(min=30, max=2000)
     private String fullText;
+    
     private Timestamp creationDate;
-    @NotNull
     private Date modificationDate;
 
     public News(){}

@@ -1,10 +1,13 @@
 package com.epam.newsmanagement.common.entity;
 
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotBlank;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+
+import javax.validation.constraints.Size;
 
 /**
  * Represents Comment Model corresponding to table in dao model
@@ -12,11 +15,11 @@ import java.sql.Timestamp;
 public class Comment implements Serializable {
 
     private static final long serialVersionUID = 2847395837493847383L;
+    private static final SimpleDateFormat dayMonthYearFormatter = new SimpleDateFormat("MM/dd/yyyy");
 
     private Long idComment;
     private Long idNews;
-    @NotBlank
-    @Length(max = 1000)
+    @NotEmpty @Size(min=2, max=300)
     private String commentText;
     private Timestamp creationDate;
 
@@ -44,6 +47,14 @@ public class Comment implements Serializable {
     }
     public void setCreationDate(Timestamp creationDate){
         this.creationDate = creationDate;
+    }
+    public String getDate(){
+    	String date = null;
+    	if(creationDate == null){
+    		return date;
+    	}else{
+    		return dayMonthYearFormatter.format((java.util.Date) creationDate);
+    	}
     }
     @Override
     public boolean equals(Object object){

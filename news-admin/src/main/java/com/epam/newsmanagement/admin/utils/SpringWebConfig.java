@@ -64,8 +64,6 @@ public class SpringWebConfig extends WebMvcConfigurerAdapter {
 	public LocaleResolver localeResolver(){
 		CookieLocaleResolver resolver = new CookieLocaleResolver();
 		resolver.setDefaultLocale(new Locale("en"));
-		resolver.setCookieName("newsmanagementAdminLocaleCookie");
-		resolver.setCookieMaxAge(4800);
 		return resolver;
 	}
 	

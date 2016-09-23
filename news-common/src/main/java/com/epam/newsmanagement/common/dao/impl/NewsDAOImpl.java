@@ -29,7 +29,7 @@ import java.util.List;
 public class NewsDAOImpl implements NewsDAO {
 
     private final static String SQL_INSERT_NEWS = "INSERT INTO NEWS(NEWS_ID, TITLE, SHORT_TEXT, FULL_TEXT, CREATION_DATE, MODIFICATION_DATE) "
-    											+ "VALUES(NEWS_SEQUENCE.NEXTVAL, ?, ?, ?, ?, ?";
+    											+ "VALUES(NEWS_SEQUENCE.NEXTVAL, ?, ?, ?, ?, ?)";
     private final static String SQL_SELECT_NEWS_BY_NEWS_ID = "SELECT NEWS_ID, TITLE, SHORT_TEXT, FULL_TEXT, CREATION_DATE, MODIFICATION_DATE "
     														+ "FROM NEWS "
     														+ "WHERE NEWS_ID = ?";
@@ -60,6 +60,10 @@ public class NewsDAOImpl implements NewsDAO {
     																			+ "WHERE ROWNUM <= ?) "
     																	+ "WHERE rnum >= ?"; /*Select news order by	creation date 
     																							and count comments by more population (use ROWNUM, pagination)*/		
+    private final static String SQL_CREATE_LINK_NEWS_AUTHOR = "INSERT INTO NEWS_AUTHOR(NEWS_ID, AUTHOR_ID) "
+															+ "VALUES(?, ?)";
+    private final static String SQL_CREATE_LINK_NEWS_TAG = "INSERT INTO NEWS_TAG(NEWS_ID, TAG_ID) "
+															+ "VALUES(?, ?)";
     private final static Logger logger = LogManager.getLogger(NewsDAOImpl.class);
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
@@ -221,5 +225,24 @@ public class NewsDAOImpl implements NewsDAO {
     				new Object[]{tagId, authorId}, new NewsMapper());
     	}
     	return listNews;
+    }
+    
+    /**
+     * Implementation {@link NewsDAO#createNewsAuthorLink(Long, Long)}}
+     */
+    @Override
+    public void createNewsAuthorLink(Long newsId, Long authorId) throws DAOException{
+    	if(newsId != null && authorId != null){
+    		jdbcTemplate.update(SQL_CREATE_LINK_NEWS_AUTHOR, new Object[]{newsId, authorId});
+    	}
+    }
+    /**
+     * Implementation {@link NewsDAO#createNewsTagLink(Long, Long)}
+     */
+    @Override
+    public void createNewsTagLink(Long newsId, Long tagId) throws DAOException{
+    	if(newsId != null && tagId != null){
+    		jdbcTemplate.update(SQL_CREATE_LINK_NEWS_TAG, new Object[]{newsId, tagId});
+    	}
     }
 }

@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <div class="filter">
-	<form:form action="${pageContext.request.contextPath}/filternews" method="POST" modelAttribute="searchParameter">
+	<form:form action="${contextPath}/filternews" method="POST" modelAttribute="searchParameter">
 		<form:select path="author.idAuthor">
 			<form:options items="${listAuthors}" itemValue="idAuthor" itemLabel="authorName"/>
 		</form:select>
@@ -19,21 +19,21 @@
 
 <div class="list_news">
 	<c:if test="${empty listNewsInfo}">
-		<h1>Not newses</h1>
+		<h1>Not news</h1>
 	</c:if>
-	<form:form action="${pageContext.request.contextPath}/delete" method="POST">
+	<form:form action="${contextPath}/delete" method="POST">
 		<c:forEach items="${listNewsInfo}" var="newsInfo">
 			<div class="news">
 				<h3>
 					<a href="<c:url value="/news/${newsInfo.news.idNews}" />">
-						<c:out value="${newsInfo.news.shortText}"/>
+						<c:out value="${newsInfo.news.title}"/>
 					</a>
 				</h3>
 				<span class="author_date">
 					<span>(by <c:out value="${newsInfo.author.authorName}"/>)</span>
 					<span><c:out value="${newsInfo.news.date}"/></span>
 				</span>
-				<p><c:out value="${newsInfo.news.fullText}"/></p>
+				<p><c:out value="${newsInfo.news.shortText}"/></p>
 				<div class="comment_tag_news">
 					<span class="tag">
 						<c:forEach items="${newsInfo.tags}" var="tag">
@@ -58,52 +58,8 @@
 	</form:form>
 </div>
 
-
-
-
-<%-- <div class="list_news">
-<c:if test="${empty listNewsInfo}">
-	<h1>Not newses</h1>
-</c:if>
-<c:forEach items="${listNewsInfo}" var="newsInfo">
-	<div class="news">
-		<h3>
-			<a href="<c:url value="/news/${newsInfo.news.idNews}" />">
-			<c:out value="${newsInfo.news.shortText}"/></a>
-		</h3>
-		<span class="author_date">
-			<span>(by <c:out value="${newsInfo.author.authorName}"/>)</span>
-			<span><c:out value="${newsInfo.news.date}"/>
-		</span>
-		</span>
-		<p><c:out value="${newsInfo.news.fullText}"/></p>
-		<div class="comment_tag_news">
-			<span class="tag">
-			<c:forEach items="${newsInfo.tags}" var="tag">
-				<c:out value="${tag.tagName}"/> 
-			</c:forEach>
-			</span>
-			<c:set var="count" value="${newsInfo.comments}"/>
-			<span class="comment">Comments(<c:out value="${fn:length(count)}"/>)</span>
-			<span><a href="#">Edit</a></span>
-			<input type="checkbox" name="deleteNewsId" value="${newsInfo.news.idNews}"/>
-		</div>
-	</div>	
-</c:forEach>
-<c:if test="${not empty listNewsInfo}">
-	<div class="delete-button">
-		<form:form action="delete" method="POST">
-			<button type="submit">DELETE</button>
-		</form:form>
-	</div>
-</c:if>
-<div id="page-buttons">
-  		
-</div>
-</div>
- --%>
-<script src="${pageContext.request.contextPath}/resources/script/jquery-3.1.0.min.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/resources/script/createChangePageButtons.js" type="text/javascript"></script>
+<script src="${contextPath}/resources/script/jquery-3.1.0.min.js" type="text/javascript"></script>
+<script src="${contextPath}/resources/script/createChangePageButtons.js" type="text/javascript"></script>
 <script>
 		$(document).ready(createPageButtons(${countNews}, ${pageNum}, "${pageContext.request.contextPath}"));
 </script>

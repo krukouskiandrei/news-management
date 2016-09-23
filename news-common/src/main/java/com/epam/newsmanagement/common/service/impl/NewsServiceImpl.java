@@ -283,4 +283,47 @@ public class NewsServiceImpl implements NewsService{
     	}
     	throw new ServiceException();
     }
+    /**
+     * Implementation {@link NewsService#createFullNews(NewsInfo)}
+     */
+    @Override
+    @Transactional
+    public void createFullNews(NewsInfo newsInfo) throws ServiceException{
+    	if(newsInfo != null){
+    		Long newsId = create(newsInfo.getNews());
+    		Author author = newsInfo.getAuthor();
+    		try{
+    			newsDAO.createNewsAuthorLink(newsId, author.getIdAuthor());
+    		}catch(DAOException e){
+    			logger.error("Failed to linking news and author where newsId=" + newsId + " and authorId=" + author.getIdAuthor() + ";", e);
+    			throw new ServiceException(e);
+    		}
+    		List<Tag> listTag = newsInfo.getTags();
+    		try{
+    			Iterator<Tag> tagIterator = listTag.iterator();
+    			while(tagIterator.hasNext()){
+    				newsDAO.createNewsTagLink(newsId, tagIterator.next().getIdTag());
+    			}
+    		}catch(DAOException e){
+    			logger.error("Failed to linking news and tag", e);
+    			throw new ServiceException(e);
+    		}
+    	}
+    }
+    /**
+     * Implementation {@link NewsService#getFullNews(Long)}
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public NewsInfo getFullNews(Long newsId) throws ServiceException{
+    	if(newsId != null){
+    		NewsInfo newsInfo = null;
+    		News news = null;
+    		news = getById(newsId);
+    		newsInfo = getInfoForNews(newsId);
+    		newsInfo.setNews(news);
+    		return newsInfo;
+    	}
+    	throw new ServiceException();
+    }
 }

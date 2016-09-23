@@ -1,3 +1,14 @@
 eclipse.preferences.version=1
+encoding//src/main/webapp/WEB-INF/layout/footer.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/layout/loginfooter.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/layout/loginheader.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/layout/sitebar.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/addauthor.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/addnews.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/addtag.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/creatednews.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/error.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/login.jsp=UTF-8
 encoding//src/main/webapp/WEB-INF/views/news.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/views/shownews.jsp=UTF-8
 encoding//src/main/webapp/resources/info/message_ru.properties=UTF-8

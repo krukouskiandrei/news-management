@@ -37,4 +37,16 @@ public interface NewsService extends EntityService<News, Long> {
 	 * @throws ServiceException if some problems on DAO layer
 	 */
 	List<NewsInfo> searchNews(SearchParameter searchParameter) throws ServiceException;
+	
+	/**
+	 * Create news with author and tags
+	 * @param newsInfo
+	 * @throws ServiceException
+	 */
+	void createFullNews(NewsInfo newsInfo) throws ServiceException;
+	
+	/**
+	 * Get news and all news information by news id
+	 */
+	NewsInfo getFullNews(Long newsId) throws ServiceException;
 }

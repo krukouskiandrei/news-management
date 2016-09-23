@@ -43,4 +43,20 @@ public interface NewsDAO extends EntityDAO<News, Long> {
 	 * @throws DAOException if some problem in database
 	 */
 	List<News> getNewsByAuthorAndTag(Long tagId, Long authorId) throws DAOException;
+	
+	/**
+	 * Creating entry in table News_Author for linking news and author
+	 * @param newsId is id news
+	 * @param authorId is id author
+	 * @throws DAOException if some problem in database
+	 */
+	void createNewsAuthorLink(Long newsId, Long authorId) throws DAOException;
+	
+	/**
+	 * Creating entry in table News_Tag for linking news and tag
+	 * @param newsId is id news
+	 * @param tagId is id tag
+	 * @throws DAOException if some problem in database
+	 */
+	void createNewsTagLink(Long newsId, Long tagId) throws DAOException;
 }

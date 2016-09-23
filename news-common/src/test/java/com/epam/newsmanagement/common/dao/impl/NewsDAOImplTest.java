@@ -43,4 +43,25 @@ public class NewsDAOImplTest {
 		Assert.assertEquals(countNews, newsDAO.countAll());
 	}
 	
+	/**
+	 * testing method {@link NewsDAO#createNewsAuthorLink(Long, Long)}
+	 * @throws DAOException
+	 */
+	@Test
+	public void createNewsAuthorLinkTest() throws DAOException{
+		Long newsId = 1L;
+		Long authorId = 2L;
+		newsDAO.createNewsAuthorLink(newsId, authorId);
+		Long newAuthorId = 1L;
+		newsDAO.createNewsAuthorLink(newsId, newAuthorId);
+	}
+	@Test
+	public void createNewsTagLinkTest() throws DAOException{
+		Long newsId = 1L;
+		Long tagId = 2L;
+		newsDAO.createNewsTagLink(newsId, tagId);
+		Long newTagId = 1L;
+		newsDAO.createNewsTagLink(newsId, newTagId);
+	}
+	
 }

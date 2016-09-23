@@ -12,11 +12,11 @@ public class NewsInfo implements Serializable {
 
     private static final long serialVersionUID = 8382927492947593853L;
 
-    @NotNull
     @Valid
     private News news;
     @NotNull
     private Author author;
+    @NotNull
     private List<Tag> tags;
     private List<Comment> comments;
 

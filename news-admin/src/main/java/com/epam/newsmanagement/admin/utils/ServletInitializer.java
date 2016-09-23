@@ -14,7 +14,7 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
 
 @Configuration
 public class ServletInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
-
+	
 	@Override
 	protected String[] getServletMappings(){
 		return new String[]{ "/" };
@@ -32,7 +32,10 @@ public class ServletInitializer extends AbstractAnnotationConfigDispatcherServle
 	
 	@Override
 	protected Filter[] getServletFilters(){
-		return new Filter[]{new CharacterEncodingFilter("UTF-8", true)};
+		CharacterEncodingFilter charFilter = new CharacterEncodingFilter();
+		charFilter.setEncoding("UTF-8");
+		charFilter.setForceEncoding(true);
+		return new Filter[]{charFilter};		
 	}
 	
 }
