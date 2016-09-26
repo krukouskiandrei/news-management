@@ -271,9 +271,10 @@ public class NewsController {
     		model.addAttribute("errorTitle", e);
     		return "error";
     	}
+    	int numberNews = 3;
     	model.addAttribute("newsInfo", newsInfo);
     	model.addAttribute(new Comment());
-    	model.addAttribute("numNews", pageNum);
+    	model.addAttribute("numNews", pageNum*numberNews);
     	return "shownews";
     }
     
@@ -325,8 +326,59 @@ public class NewsController {
      */
     @RequestMapping(value="news/next", method = RequestMethod.GET)
     public String nextNews(@ModelAttribute("listNewsInfo")List<NewsInfo> listNewsInfo, 
-    		@ModelAttribute("numNews")int numNews, @ModelAttribute("newsInfo")NewsInfo currentNewsInfo, Model model){
+    		@ModelAttribute("pageNum")int numPage, @ModelAttribute("newsInfo")NewsInfo currentNewsInfo, Model model){
+    	NewsInfo resultNewsInfo = null;
     	Iterator<NewsInfo> newsInfoIterator = listNewsInfo.iterator();
+    	while(newsInfoIterator.hasNext()){
+    		NewsInfo news = newsInfoIterator.next();
+    		if(news.getNews().getIdNews().equals(currentNewsInfo.getNews().getIdNews()) && newsInfoIterator.hasNext()){
+    			resultNewsInfo = newsInfoIterator.next();
+    			break;
+    		}
+    	}
+    	if(resultNewsInfo == null){
+    		List<NewsInfo> newListNewsInfo = null;
+    		int numberNews = 3;
+    		try{
+    			numPage++;
+    			newListNewsInfo = newsService.paginationNews(numPage == 1 ? 1 : (numPage-1) * numberNews + 1,
+    					numPage == 1 ? numberNews : (numPage-1) * numberNews + numberNews);
+    		}catch(ServiceException e){
+    			logger.error("error from pagination news", e);
+        		model.addAttribute("errorTitle", e);
+        		return "error";
+    		}
+    		if(newListNewsInfo != null){
+    			if(!newListNewsInfo.isEmpty()){
+    				resultNewsInfo = newListNewsInfo.get(0);
+    				model.addAttribute("pageNum", numPage);
+    		    	model.addAttribute("listNewsInfo", newListNewsInfo);
+    			}else {
+					resultNewsInfo = currentNewsInfo;
+				}
+    		}else{
+    			resultNewsInfo = currentNewsInfo;
+    		}
+    	}
+    	model.addAttribute("newsInfo", resultNewsInfo);
+    	model.addAttribute(new Comment());    	
+    	
+    	
+    	/*List<NewsInfo> listNewsInfo = null;
+    	int numberNews = 3;//number news on a page
+    	try{
+    		listNewsInfo = newsService.paginationNews(numPage == 1 ? 1 :
+    			(numPage-1) * numberNews + 1, numPage == 1 ? 
+    					numberNews : (numPage-1) * numberNews + numberNews);
+    	}catch(ServiceException e){
+    		logger.error("error from pagination news", e);
+    		model.addAttribute("errorTitle", e);
+    		return "error";
+    	}
+    	model.addAttribute("pageNum", numPage);
+    	model.addAttribute("listNewsInfo", listNewsInfo);*/
+    	
+    	/*Iterator<NewsInfo> newsInfoIterator = listNewsInfo.iterator();
     	NewsInfo resultNewsInfo = null;
     	boolean checkContainsCurrentNewsInfoInListNewsInfo = false;//for pagination news
     	while(newsInfoIterator.hasNext()){
@@ -345,11 +397,19 @@ public class NewsController {
         	int numberNews = 3;
         	try{
         		if(checkContainsCurrentNewsInfoInListNewsInfo){
-        			localListNewsInfo = newsService.paginationNews(numberNews*numNews+1, numberNews*numNews+1);
-        			model.addAttribute("numNews", numberNews*numNews+1);
+        			localListNewsInfo = newsService.paginationNews(numNews+1, numNews+1);
+        			if(localListNewsInfo != null){
+        				if(!localListNewsInfo.isEmpty()){
+        					model.addAttribute("numNews", numNews+1);
+        				}
+        			}
         		}else{
         			localListNewsInfo = newsService.paginationNews(numNews+1, numNews+1);
-        			model.addAttribute("numNews", numNews+1);
+        			if(localListNewsInfo != null){
+        				if(!localListNewsInfo.isEmpty()){
+        					model.addAttribute("numNews", numNews+1);
+        				}
+        			}
         		}
         	}catch(ServiceException e){
         		logger.error("error from pagination news", e);
@@ -363,14 +423,55 @@ public class NewsController {
         	}
     	}
     	model.addAttribute("newsInfo", resultNewsInfo);
-    	model.addAttribute(new Comment());
+    	model.addAttribute(new Comment());*/
     	return "shownews";
     }
     
     @RequestMapping(value="news/previous", method = RequestMethod.GET)
     public String previousNews(@ModelAttribute("listNewsInfo")List<NewsInfo> listNewsInfo, 
-    		@ModelAttribute("numNews")int numNews, @ModelAttribute("newsInfo")NewsInfo currentNewsInfo, Model model){
+    		@ModelAttribute("pageNum")int numPage, @ModelAttribute("newsInfo")NewsInfo currentNewsInfo, Model model){
+    	
+    	NewsInfo resultNewsInfo = null;
     	Collections.reverse(listNewsInfo);
+    	Iterator<NewsInfo> newsInfoIterator = listNewsInfo.iterator();
+    	while(newsInfoIterator.hasNext()){
+    		NewsInfo news = newsInfoIterator.next();
+    		if(news.getNews().getIdNews().equals(currentNewsInfo.getNews().getIdNews()) && newsInfoIterator.hasNext()){
+    			resultNewsInfo = newsInfoIterator.next();
+    			break;
+    		}
+    	}
+    	Collections.reverse(listNewsInfo);
+    	if(resultNewsInfo == null){
+    		List<NewsInfo> newListNewsInfo = null;
+    		int numberNews = 3;
+    		try{
+    			numPage--;
+    			newListNewsInfo = newsService.paginationNews(numPage == 1 ? 1 : (numPage-1) * numberNews + 1,
+    					numPage == 1 ? numberNews : (numPage-1) * numberNews + numberNews);
+    		}catch(ServiceException e){
+    			logger.error("error from pagination news", e);
+        		model.addAttribute("errorTitle", e);
+        		return "error";
+    		}
+    		if(newListNewsInfo != null){
+    			if(!newListNewsInfo.isEmpty()){
+    				Collections.reverse(newListNewsInfo);
+    				resultNewsInfo = newListNewsInfo.get(0);
+    				Collections.reverse(newListNewsInfo);
+    				model.addAttribute("pageNum", numPage);
+    		    	model.addAttribute("listNewsInfo", newListNewsInfo);
+    			}else {
+					resultNewsInfo = currentNewsInfo;
+				}
+    		}else{
+    			resultNewsInfo = currentNewsInfo;
+    		}
+    	}
+    	model.addAttribute("newsInfo", resultNewsInfo);
+    	model.addAttribute(new Comment());    	
+    	   	
+    	/*Collections.reverse(listNewsInfo);
     	Iterator<NewsInfo> newsInfoIterator = listNewsInfo.iterator();
     	NewsInfo resultNewsInfo = null;
     	boolean checkContainsCurrentNewsInfoInListNewsInfo = false;//for pagination news
@@ -385,30 +486,43 @@ public class NewsController {
     		}
     		
     	}
+    	Collections.reverse(listNewsInfo);
     	if(resultNewsInfo == null){
     		List<NewsInfo> localListNewsInfo = null;
         	int numberNews = 3;
         	try{
         		if(checkContainsCurrentNewsInfoInListNewsInfo){
-        			localListNewsInfo = newsService.paginationNews(numberNews*(numNews-1), numberNews*(numNews-1));
-        			model.addAttribute("numNews", numberNews*(numNews-1));
+        			localListNewsInfo = newsService.paginationNews(numNews-numberNews, numNews-numberNews);
+        			if(localListNewsInfo != null){
+        				if(!localListNewsInfo.isEmpty()){
+        					model.addAttribute("numNews", numNews-numberNews);
+        				}
+        			}
         		}else{
         			localListNewsInfo = newsService.paginationNews(numNews-1, numNews-1);
-        			model.addAttribute("numNews", numNews-1);
+        			if(localListNewsInfo != null){
+        				if(!localListNewsInfo.isEmpty()){
+        					model.addAttribute("numNews", numNews-1);
+        				}
+        			}
         		}
         	}catch(ServiceException e){
         		logger.error("error from pagination news", e);
         		model.addAttribute("errorTitle", e);
         		return "error";
         	}
-        	if(!localListNewsInfo.isEmpty()){
-        		resultNewsInfo = localListNewsInfo.get(0);
+        	if(localListNewsInfo != null){
+        		if(!localListNewsInfo.isEmpty()){
+        			resultNewsInfo = localListNewsInfo.get(0);
+        		}else{
+        			resultNewsInfo = currentNewsInfo;
+        		}
         	}else{
-        		resultNewsInfo = currentNewsInfo;
-        	}
+    			resultNewsInfo = currentNewsInfo;
+    		}
     	}
     	model.addAttribute("newsInfo", resultNewsInfo);
-    	model.addAttribute(new Comment());
+    	model.addAttribute(new Comment());*/
     	return "shownews";
     }
 
