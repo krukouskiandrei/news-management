@@ -1,10 +1,11 @@
 package com.epam.newsmanagement.common.entity;
 
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+
+import javax.validation.constraints.Size;
 
 /**
  * Represents Author Model corresponding to table in dao model
@@ -14,8 +15,7 @@ public class Author implements Serializable {
     private static final long serialVersionUID = 3244234324253424254L;
 
     private Long idAuthor;
-    @NotBlank
-    @Length(max = 30)
+    @NotEmpty @Size(min=2, max=30)
     private String authorName;
     private Timestamp expiredDate;
 
