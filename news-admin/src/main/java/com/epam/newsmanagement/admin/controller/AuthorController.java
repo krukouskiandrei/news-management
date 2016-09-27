@@ -19,7 +19,11 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import com.epam.newsmanagement.common.entity.Author;
 import com.epam.newsmanagement.common.exception.service.ServiceException;
 import com.epam.newsmanagement.common.service.AuthorService;
-
+/**
+ * controller for working with author
+ * @author Andrei_Krukouski
+ *
+ */
 @Controller
 @SessionAttributes({"author", "authorsList"})
 public class AuthorController {
@@ -29,6 +33,11 @@ public class AuthorController {
 	@Autowired
 	AuthorService authorService;
 	
+	/**
+	 * redirect on addauthor.jsp
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping(value = "addauthor", method = RequestMethod.GET)
 	public String getAuthorAddPage(Model model){
 		List<Author> authorsList = null;
@@ -44,7 +53,14 @@ public class AuthorController {
 		return "addauthor";
 	}
 	
-	@RequestMapping(value = "createauthor", method = RequestMethod.POST)
+	/**
+	 * create author
+	 * @param author
+	 * @param result
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "addauthor/createauthor", method = RequestMethod.POST)
 	public String createAuthor(@Valid Author author, BindingResult result, Model model){
 		if(result.hasErrors()){
 			logger.info("Returning addauthod.jsp page");
@@ -61,8 +77,14 @@ public class AuthorController {
 		}
 		return getAuthorAddPage(model);
 	}
-	
-	@RequestMapping(value = "updateAuthor", method = RequestMethod.POST)
+	/**
+	 * update author
+	 * @param author
+	 * @param result
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "addauthor/updateauthor", method = RequestMethod.POST)
 	public String updateAuthor(@Valid Author author, BindingResult result, Model model){
 		if(result.hasErrors()){
 			logger.info("Returning addauthod.jsp page");

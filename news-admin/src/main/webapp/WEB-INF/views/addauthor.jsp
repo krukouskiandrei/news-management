@@ -4,16 +4,19 @@
 <script src="${contextPath}/resources/script/jquery-3.1.0.min.js" type="text/javascript"></script>
 <script src="${contextPath}/resources/script/author.js" type="text/javascript"></script>
 <div class="authors-list">
+	<spring:form modelAttribute="author">
+		<spring:errors path="authorName" cssClass="error-msg"/>
+	</spring:form>
+	
 	<c:forEach items="${authorsList}" var="author">
         <div class="author">
-            <spring:form id="form${author.idAuthor}" modelAttribute="author" action="${contextPath}/updateAuthor" method="POST">
+            <spring:form id="form${author.idAuthor}" modelAttribute="author" action="${contextPath}/addauthor/updateAuthor" method="POST">
                         <spring:hidden  name="idAuthor" path="idAuthor" value="${author.idAuthor}"/>
                         <spring:hidden name="expiredDate" id="exp${author.idAuthor}" path="expiredDate" value="${author.expiredDate}" />
 
                         <p>Author: 
                         	<spring:input id="${author.idAuthor}" name="authorName"
                                              path="authorName" readonly="true" value="${author.authorName}"/>
-                            <spring:errors path="authorName"></spring:errors>
                         </p>
                     </spring:form>
                 </div>
@@ -39,11 +42,10 @@
 </div>
 
 <div>
-    <spring:form id="addform" action="${contextPath}/createauthor" modelAttribute="author" method="POST">
+    <spring:form id="addform" action="${contextPath}/addauthor/createauthor" modelAttribute="author" method="POST">
 
         <p>Add Author: <spring:input name="authorName" path="authorName"/>
-        	<spring:errors path="authorName"></spring:errors>
-            <button onclick="addAuthor()">save</button></p>
+        	<button onclick="addAuthor()">save</button></p>
     </spring:form>
 
 

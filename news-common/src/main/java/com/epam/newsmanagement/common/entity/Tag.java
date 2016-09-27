@@ -1,6 +1,6 @@
 package com.epam.newsmanagement.common.entity;
 
-import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.Serializable;
 
@@ -12,7 +12,7 @@ public class Tag implements Serializable {
     private static final long serialVersionUID = 3298243987234987249L;
 
     private Long idTag;
-    @NotBlank
+    @NotEmpty
     private String tagName;
 
     public Tag(){}

@@ -37,7 +37,7 @@ import com.epam.newsmanagement.common.service.NewsService;
 import com.epam.newsmanagement.common.service.TagService;
 
 /**
- * controller for works news
+ * controller for working with news
  * @author Andrei_Krukouski
  *
  */
