@@ -42,6 +42,12 @@ public class TagTest {
         tag1.setIdTag(new Long(1));
         tag2.setIdTag(new Long(1));
         Assert.assertEquals(tag1, tag2);
+        tag1.setTagName("Tag");
+        tag2.setTagName("Tag");
+        Assert.assertEquals(tag1, tag2);
+        tag1.setIdTag(null);
+        tag2.setIdTag(null);
+        Assert.assertEquals(tag1, tag2);
     }
 
     /**

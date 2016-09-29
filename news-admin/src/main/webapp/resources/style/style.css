@@ -124,9 +124,6 @@ body{
 .tag{
 	color: #B6B4B4;
 }
-.comment{
-	color: #EB2D2D;
-}
 .filter{
 	width: 74%;
     display: inline-block;
@@ -180,4 +177,194 @@ body{
     width: 100px;
     height: 40px;
     font-size: 20px;
+}
+.addnewsform{
+	width: 72%;
+    display: inline-block;
+    padding: 50px 0 0 50px;
+    border: 1px solid #CAC9C9;
+    font-size: 20px;
+}
+.addnewsform input, .addnewsform textarea, .addnewsform select{
+	font-size: 17px;
+}
+.addnewsform form{
+	padding-left: 100px;
+	
+}
+.addnewsform input[type="text"]{
+    margin-right: 170px;
+    width: 500px;
+    float: right;
+}
+.addnewsform textarea{
+	width: 500px;
+    margin-right: 170px;
+    float: right;
+    height: 80px;
+}
+.addnewsform form div{
+	height: 70px;
+	margin-bottom: 20px;
+}
+.addnewsform select{
+	width: 150px;
+    height: 30px;
+    float: right;
+    margin-right: 170px;
+}
+.addnewsform input[type="submit"]{
+	width: 100px;
+    height: 40px;
+    float: right;
+    margin-right: 170px;	
+}
+.addnewsform span{
+	display: block;
+}
+.error{
+	font-size: 12px;
+	color: red;
+}
+.authors{
+	width: 72%;
+    display: inline-block;
+    padding: 50px 0 0 50px;
+    border: 1px solid #CAC9C9;
+    font-size: 25px;
+    text-align: center;
+}
+.authors-list input[type="text"]{
+	margin-right: 470px;
+    width: 250px;
+    float: right;
+    font-size: 20px;    
+}
+.authorsBut{
+	text-align: left;
+    padding-left: 100px;
+}
+.authorsBut button{
+	width: 80px;
+    height: 30px;
+    font-size: 20px;
+}
+.addauthor{
+	margin-top: 100px;
+}
+.addauthor input[type="text"]{
+	margin-right: 250px;
+	width: 250px;
+	font-size: 20px;
+}
+.addauthor button{
+	width: 80px;
+    height: 30px;
+    font-size: 20px;
+    margin-right: 280px;
+}
+
+.tags{
+	width: 72%;
+    display: inline-block;
+    padding: 50px 0 0 50px;
+    border: 1px solid #CAC9C9;
+    font-size: 25px;
+    text-align: center;
+}
+.tags-list input[type="text"]{
+	margin-right: 470px;
+    width: 250px;
+    float: right;
+    font-size: 20px;    
+}
+.tagsBut{
+	text-align: left;
+    padding-left: 100px;
+}
+.tagsBut button{
+	width: 80px;
+    height: 30px;
+    font-size: 20px;
+}
+.addtag{
+	margin-top: 100px;
+	margin-bottom: 50px;	
+}
+.addtag input[type="text"]{
+	margin-right: 250px;
+	width: 250px;
+	font-size: 20px;
+}
+.addtag button{
+	width: 80px;
+    height: 30px;
+    font-size: 20px;
+    margin-right: 280px;
+}
+.show_news{
+	    width: 72%;
+    display: inline-block;
+    padding: 50px 0 0 50px;
+    border: 1px solid #CAC9C9;
+    font-size: 18px;    
+}
+.show_date{
+	float:right;
+	margin-right: 50px;
+	text-decoration: underline;
+}
+.show_author{
+	margin-left: 20px;
+    font-size: 20px;
+}
+.fulltext{
+	padding: 0 15px 0 5px;
+}
+.comment{
+	width: 60%;
+}
+.comment img{
+	width: 6%;
+	float: right;
+}
+.text_comment{
+	margin: 0;
+    padding: 20px;
+    font-size: 20px;
+    border: 1px solid #CAC9C9;
+}
+.comments{
+	margin-top: 50px;
+}
+.create_date{
+	text-decoration: underline;
+	margin: 0;
+}
+.text_comment p{
+	width: 90%;
+    margin: 0;
+    display: inline-block;
+}
+.crete_comment{
+	margin-top: 30px;
+}
+.crete_comment input[type="text"]{
+	width: 530px;
+    font-size: 20px;
+    padding: 15px 10px;
+}
+.crete_comment input[type="submit"]{
+	width: 150px;
+    height: 35px;
+    font-size: 20px;
+    margin-top: 20px;
+}
+.paginationlink{
+	margin: 30px;
+    font-size: 20px;
+    text-align: center;
+}
+.paginationlink a{
+	margin: 0 10px;
 }

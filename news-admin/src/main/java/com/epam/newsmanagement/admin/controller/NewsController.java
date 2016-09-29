@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.epam.newsmanagement.common.entity.Author;
 import com.epam.newsmanagement.common.entity.Comment;
+import com.epam.newsmanagement.common.entity.News;
 import com.epam.newsmanagement.common.entity.NewsInfo;
 import com.epam.newsmanagement.common.entity.SearchParameter;
 import com.epam.newsmanagement.common.entity.Tag;
@@ -145,7 +146,7 @@ public class NewsController {
      * @param model
      * @return
      */
-    @RequestMapping(value = "delete", method = RequestMethod.POST)
+    @RequestMapping(value = "news/delete", method = RequestMethod.POST)
     public String deleteNews(@RequestParam Long[] deleteNewsId, Model model){
     	for(int i = 0; i < deleteNewsId.length; i++){
     		try{
@@ -175,7 +176,7 @@ public class NewsController {
      * @param model
      * @return
      */
-    @RequestMapping(value = "filternews", method = RequestMethod.POST)
+    @RequestMapping(value = "news/filternews", method = RequestMethod.POST)
     public String filteredNews(@ModelAttribute("searchParameter")SearchParameter searchParameter, 
     		BindingResult result, Model model){
     	if(result.hasErrors()){
@@ -196,8 +197,9 @@ public class NewsController {
     		model.addAttribute("errorTitle", e);
     		return "error";
     	}
+    		model.addAttribute("countNews", listNewsInfo.size());
     		model.addAttribute("listNewsInfo", listNewsInfo);
-    	return "news";
+    	return "filtrednews";
     }
     
     /**
@@ -207,7 +209,7 @@ public class NewsController {
      * @param model
      * @return
      */
-    @RequestMapping(value = "createNews", method = RequestMethod.POST)
+    @RequestMapping(value = "news/createNews", method = RequestMethod.POST)
     public String createNews(@Valid NewsInfo newsInfo, 
     		BindingResult result, Model model){
     	if(result.hasErrors()){
@@ -296,14 +298,15 @@ public class NewsController {
     	return showNews(idNews, pageNum, model);
     }
     
-    @RequestMapping(value = "{idNews}/createcomment", method = RequestMethod.POST)
+    @RequestMapping(value = "news/{idNews}/createcomment", method = RequestMethod.POST)
     public String createComment(@PathVariable long idNews, @ModelAttribute("pageNum")int pageNum,
     		@Valid Comment comment, 
     		BindingResult result, Model model){
     	if(result.hasErrors()){
     		logger.info("Returning shownews.jsp page");
     		
-    		return showNews(idNews, pageNum, model);
+    		//return showNews(idNews, pageNum, model);
+    		return "shownews";
     	}
     	
     	comment.setIdNews(idNews);
@@ -362,71 +365,16 @@ public class NewsController {
     	}
     	model.addAttribute("newsInfo", resultNewsInfo);
     	model.addAttribute(new Comment());    	
-    	
-    	
-    	/*List<NewsInfo> listNewsInfo = null;
-    	int numberNews = 3;//number news on a page
-    	try{
-    		listNewsInfo = newsService.paginationNews(numPage == 1 ? 1 :
-    			(numPage-1) * numberNews + 1, numPage == 1 ? 
-    					numberNews : (numPage-1) * numberNews + numberNews);
-    	}catch(ServiceException e){
-    		logger.error("error from pagination news", e);
-    		model.addAttribute("errorTitle", e);
-    		return "error";
-    	}
-    	model.addAttribute("pageNum", numPage);
-    	model.addAttribute("listNewsInfo", listNewsInfo);*/
-    	
-    	/*Iterator<NewsInfo> newsInfoIterator = listNewsInfo.iterator();
-    	NewsInfo resultNewsInfo = null;
-    	boolean checkContainsCurrentNewsInfoInListNewsInfo = false;//for pagination news
-    	while(newsInfoIterator.hasNext()){
-    		NewsInfo news = newsInfoIterator.next();
-    		if(news.getNews().getIdNews().equals(currentNewsInfo.getNews().getIdNews())){
-    			if(newsInfoIterator.hasNext()){
-    				resultNewsInfo = newsInfoIterator.next();
-    				break;
-    			}
-    			checkContainsCurrentNewsInfoInListNewsInfo = true;
-    		}
-    		
-    	}
-    	if(resultNewsInfo == null){
-    		List<NewsInfo> localListNewsInfo = null;
-        	int numberNews = 3;
-        	try{
-        		if(checkContainsCurrentNewsInfoInListNewsInfo){
-        			localListNewsInfo = newsService.paginationNews(numNews+1, numNews+1);
-        			if(localListNewsInfo != null){
-        				if(!localListNewsInfo.isEmpty()){
-        					model.addAttribute("numNews", numNews+1);
-        				}
-        			}
-        		}else{
-        			localListNewsInfo = newsService.paginationNews(numNews+1, numNews+1);
-        			if(localListNewsInfo != null){
-        				if(!localListNewsInfo.isEmpty()){
-        					model.addAttribute("numNews", numNews+1);
-        				}
-        			}
-        		}
-        	}catch(ServiceException e){
-        		logger.error("error from pagination news", e);
-        		model.addAttribute("errorTitle", e);
-        		return "error";
-        	}
-        	if(!localListNewsInfo.isEmpty()){
-        		resultNewsInfo = localListNewsInfo.get(0);
-        	}else{
-        		resultNewsInfo = currentNewsInfo;
-        	}
-    	}
-    	model.addAttribute("newsInfo", resultNewsInfo);
-    	model.addAttribute(new Comment());*/
     	return "shownews";
     }
-    
+    /**
+     * show previous news
+     * @param listNewsInfo
+     * @param numNews
+     * @param currentNewsInfo
+     * @param model
+     * @return
+     */
     @RequestMapping(value="news/previous", method = RequestMethod.GET)
     public String previousNews(@ModelAttribute("listNewsInfo")List<NewsInfo> listNewsInfo, 
     		@ModelAttribute("pageNum")int numPage, @ModelAttribute("newsInfo")NewsInfo currentNewsInfo, Model model){
@@ -470,60 +418,47 @@ public class NewsController {
     	}
     	model.addAttribute("newsInfo", resultNewsInfo);
     	model.addAttribute(new Comment());    	
-    	   	
-    	/*Collections.reverse(listNewsInfo);
-    	Iterator<NewsInfo> newsInfoIterator = listNewsInfo.iterator();
-    	NewsInfo resultNewsInfo = null;
-    	boolean checkContainsCurrentNewsInfoInListNewsInfo = false;//for pagination news
-    	while(newsInfoIterator.hasNext()){
-    		NewsInfo news = newsInfoIterator.next();
-    		if(news.getNews().getIdNews().equals(currentNewsInfo.getNews().getIdNews())){
-    			if(newsInfoIterator.hasNext()){
-    				resultNewsInfo = newsInfoIterator.next();
-    				break;
-    			}
-    			checkContainsCurrentNewsInfoInListNewsInfo = true;
-    		}
-    		
-    	}
-    	Collections.reverse(listNewsInfo);
-    	if(resultNewsInfo == null){
-    		List<NewsInfo> localListNewsInfo = null;
-        	int numberNews = 3;
-        	try{
-        		if(checkContainsCurrentNewsInfoInListNewsInfo){
-        			localListNewsInfo = newsService.paginationNews(numNews-numberNews, numNews-numberNews);
-        			if(localListNewsInfo != null){
-        				if(!localListNewsInfo.isEmpty()){
-        					model.addAttribute("numNews", numNews-numberNews);
-        				}
-        			}
-        		}else{
-        			localListNewsInfo = newsService.paginationNews(numNews-1, numNews-1);
-        			if(localListNewsInfo != null){
-        				if(!localListNewsInfo.isEmpty()){
-        					model.addAttribute("numNews", numNews-1);
-        				}
-        			}
-        		}
-        	}catch(ServiceException e){
-        		logger.error("error from pagination news", e);
-        		model.addAttribute("errorTitle", e);
-        		return "error";
-        	}
-        	if(localListNewsInfo != null){
-        		if(!localListNewsInfo.isEmpty()){
-        			resultNewsInfo = localListNewsInfo.get(0);
-        		}else{
-        			resultNewsInfo = currentNewsInfo;
-        		}
-        	}else{
-    			resultNewsInfo = currentNewsInfo;
-    		}
-    	}
-    	model.addAttribute("newsInfo", resultNewsInfo);
-    	model.addAttribute(new Comment());*/
     	return "shownews";
+    }
+    
+    @RequestMapping(value = "news/edit/{idNews}", method = RequestMethod.GET)
+    public String editNews(@PathVariable long idNews, Model model){
+    	News editNews = null;
+    	try{
+    		editNews = newsService.getById(idNews);
+    	}catch(ServiceException e){
+    		logger.error("Failet to get newsInfo by newsId=" + idNews);
+    		model.addAttribute("errorTitle", e);
+    		return "error";
+    	}
+    	model.addAttribute("editNews", editNews);    	
+    	return "editnews";
+    }
+    
+    /**
+     * create news 
+     * @param newsInfo
+     * @param result
+     * @param model
+     * @return
+     */
+    @RequestMapping(value = "news/updateNews", method = RequestMethod.POST)
+    public String updateNews(@Valid @ModelAttribute("editNews") News editNews, 
+    		BindingResult result, Model model){
+    	if(result.hasErrors()){
+    		logger.info("Returning addnews.jsp page");
+    		return "editnews";
+    	}
+    	Date currentDate = new Date(); 
+    	editNews.setModificationDate(new java.sql.Date(currentDate.getTime()));
+    	try{
+    		newsService.update(editNews);    		
+    	}catch(ServiceException e){
+    		logger.error("Failed to create newsInfo=" + editNews + ";", e);
+    		model.addAttribute("errorTitle", e);
+    		return "error";
+    	}
+    	return "news";
     }
 
 }

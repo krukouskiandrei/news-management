@@ -18,6 +18,9 @@
     <definition name="news" extends="base">
         <put-attribute name="body" value="/WEB-INF/views/news.jsp"/>
    	</definition>
+   	<definition name="filtrednews" extends="base">
+        <put-attribute name="body" value="/WEB-INF/views/filtrednews.jsp"/>
+   	</definition>
     <definition name="addnews" extends="base">
     	<put-attribute name="body" value="/WEB-INF/views/addnews.jsp"/>
     </definition>
@@ -35,5 +38,8 @@
     </definition>
     <definition name="shownews" extends="base">
     	<put-attribute name="body" value="/WEB-INF/views/shownews.jsp"></put-attribute>
+    </definition>
+    <definition name="editnews" extends="base">
+    	<put-attribute name="body" value="/WEB-INF/views/editnews.jsp"></put-attribute>
     </definition>
 </tiles-definitions>

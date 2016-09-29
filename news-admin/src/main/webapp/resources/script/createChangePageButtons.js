@@ -51,6 +51,9 @@ function createPageButtons(countNews, pageNum, path){
     	var left = allNumPage - countButtonOnPage + 1;
     	var right = allNumPage;
     	var elementLinkOnPage;
+    	if(left <= 0){
+    		left = 1;
+    	}
     	for(var i = left; i <= right; i++){
     		elementLinkOnPage = document.createElement('a');
     		elementLinkOnPage.setAttribute("class", "buttonPage");

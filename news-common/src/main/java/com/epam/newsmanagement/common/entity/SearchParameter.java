@@ -13,7 +13,7 @@ public class SearchParameter implements Serializable {
 
     private Author author;
     private List<Tag> tagList;
-
+    private List<String> testString;
     public SearchParameter(){}
 
     public Author getAuthor(){
@@ -27,6 +27,12 @@ public class SearchParameter implements Serializable {
     }
     public void setTagList(List<Tag> tagList){
         this.tagList = tagList;
+    }
+    public List<String> getTestString(){
+    	return testString;
+    }
+    public void setTestString(List<String> testString){
+    	this.testString = testString;
     }
 
     @Override

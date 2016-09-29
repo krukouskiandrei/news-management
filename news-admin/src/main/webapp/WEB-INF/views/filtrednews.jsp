@@ -1,19 +1,19 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="springform" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <div class="filter">
-	<springform:form action="${contextPath}/news/filternews" method="POST" modelAttribute="searchParameter">
-		<springform:select path="author.idAuthor">
-			<springform:options items="${listAuthors}" itemValue="idAuthor" itemLabel="authorName"/>
-		</springform:select>
-		<springform:select path="tagList[0].idTag">
-			<springform:options items="${listTags}" itemValue="idTag" itemLabel="tagName"/>
-		</springform:select>
+	<form:form action="${contextPath}/news/filternews" method="POST" modelAttribute="searchParameter">
+		<form:select path="author.idAuthor">
+			<form:options items="${listAuthors}" itemValue="idAuthor" itemLabel="authorName"/>
+		</form:select>
+		<form:select path="tagList[0].idTag">
+			<form:options items="${listTags}" itemValue="idTag" itemLabel="tagName"/>
+		</form:select>
 		<input type="submit" value="Filter">
 		<input type="reset" value="Reset">
-	</springform:form>
+	</form:form>
 	
 </div>
 
@@ -21,7 +21,7 @@
 	<c:if test="${empty listNewsInfo}">
 		<h1><spring:message code="news.empty"/></h1>
 	</c:if>
-	<springform:form action="${contextPath}/news/delete" method="POST">
+	<form:form action="${contextPath}/delete" method="POST">
 		<c:forEach items="${listNewsInfo}" var="newsInfo">
 			<div class="news">
 				<h3>
@@ -43,7 +43,7 @@
 					<c:set var="count" value="${newsInfo.comments}"/>
 					<span class="comment"><spring:message code="news.comments.count"/>(<c:out value="${fn:length(count)}"/>)</span>
 					<span>
-						<a href="${contextPath}/news/edit/${newsInfo.news.idNews}"><spring:message code="news.link.edit"/></a>
+						<a href="/news/edit/${newsInfo.news.idNews}"><spring:message code="news.link.edit"/></a>
 					</span>
 					<input type="checkbox" name="deleteNewsId" value="${newsInfo.news.idNews}"/>
 				</div>
@@ -55,7 +55,7 @@
 			</div>
 		</c:if>
 		<div id="page-buttons"></div>
-	</springform:form>
+	</form:form>
 </div>
 
 <script src="${contextPath}/resources/script/jquery-3.1.0.min.js" type="text/javascript"></script>
