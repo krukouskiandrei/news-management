@@ -12,7 +12,7 @@
         <div class="tag">
             <spring:form id="form${tag.idTag}" modelAttribute="tag" action="${contextPath}/addtag/updatetag" method="POST">
                         <spring:hidden  name="idTag" path="idTag" value="${tag.idTag}"/>
-                        <input type="hidden" name="deleteTag" value="no"/>
+                        <input type="hidden" id="deleteResult${tag.idTag}" name="deleteTag" value="no"/>
                         <p>Tag: 
                         	<spring:input id="${tag.idTag}" name="tagName"
                                              path="tagName" readonly="true" value="${tag.tagName}"/>

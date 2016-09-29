@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.epam.newsmanagement.common.entity.Tag;
@@ -78,17 +79,27 @@ public class TagController {
 	 * @return
 	 */
 	@RequestMapping(value = "addtag/updatetag", method = RequestMethod.POST)
-	public String updateTag(@Valid Tag tag, BindingResult result, Model model){
+	public String updateTag(@Valid Tag tag, @RequestParam("deleteTag") String deleteTag, BindingResult result, Model model){
 		if(result.hasErrors()){
 			logger.info("Returning addtag.jsp");
 			return "addtag";
 		}
-		try{
-			tagService.update(tag);
-		}catch(ServiceException e){
-			logger.error("Failed to create tag=" + tag);
-			model.addAttribute("errorTitle", e);
-			return "error";
+		if(deleteTag.equals("yes")){
+			try{
+				tagService.delete(tag.getIdTag());
+			}catch(ServiceException e){
+				logger.error("Failed to create tag=" + tag);
+				model.addAttribute("errorTitle", e);
+				return "error";
+			}
+		}else{
+			try{
+				tagService.update(tag);
+			}catch(ServiceException e){
+				logger.error("Failed to create tag=" + tag);
+				model.addAttribute("errorTitle", e);
+				return "error";
+			}
 		}
 		return getAddTagPage(model);
 	}

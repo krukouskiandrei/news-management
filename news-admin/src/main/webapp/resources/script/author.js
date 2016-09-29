@@ -31,7 +31,7 @@ function expireAuthor (authorId){
     var day = ("0" + now.getDate()).slice(-2);
     var month = ("0" + (now.getMonth() + 1)).slice(-2);
     var today = now.getFullYear()+"-"+(month)+"-"+(day)+" "+"00:00";
-    var exp = document.getElementById("exp".concat(authorId));
+    var exp = document.getElementById("exp");
     exp.value = today;
     $( "#form".concat(authorId) ).submit();
 }
