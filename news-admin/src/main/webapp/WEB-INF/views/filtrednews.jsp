@@ -4,17 +4,22 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <div class="filter">
-	<form:form action="${contextPath}/news/filternews" method="POST" modelAttribute="searchParameter">
-		<form:select path="author.idAuthor">
-			<form:options items="${listAuthors}" itemValue="idAuthor" itemLabel="authorName"/>
-		</form:select>
-		<form:select path="tagList[0].idTag">
-			<form:options items="${listTags}" itemValue="idTag" itemLabel="tagName"/>
-		</form:select>
-		<input type="submit" value="Filter">
-		<input type="reset" value="Reset">
-	</form:form>
-	
+	<form method="POST">
+		<select name="authorId">
+			<c:forEach items="${listAuthors}" var="author">
+				<option value="${author.idAuthor}"><c:out value="${author.authorName}"/></option>
+			</c:forEach>
+		</select>
+		<select name="tagsId" multiple size="10">
+			<option value="0" selected="selected">...</option>
+			<c:forEach items="${listTags}" var="tag">
+				<option value="${tag.idTag}"><c:out value="${tag.tagName}"/></option>
+			</c:forEach>
+		</select>
+		<input type="hidden"  name="${_csrf.parameterName}"   value="${_csrf.token}"/>
+		<button formaction="${contextPath}/news/filternews">Filter</button>
+		<button formaction="${contextPath}/news">Reset</button>
+	</form>
 </div>
 
 <div class="list_news">

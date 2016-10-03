@@ -3,7 +3,9 @@ package com.epam.newsmanagement.common.dao.impl;
 import com.epam.newsmanagement.common.dao.EntityDAO;
 import com.epam.newsmanagement.common.dao.NewsDAO;
 import com.epam.newsmanagement.common.dao.mapper.NewsMapper;
+import com.epam.newsmanagement.common.dao.utils.FilterQueryBuilder;
 import com.epam.newsmanagement.common.entity.News;
+import com.epam.newsmanagement.common.entity.SearchParameter;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
 
 import org.apache.log4j.LogManager;
@@ -33,8 +35,15 @@ public class NewsDAOImpl implements NewsDAO {
     private final static String SQL_SELECT_NEWS_BY_NEWS_ID = "SELECT NEWS_ID, TITLE, SHORT_TEXT, FULL_TEXT, CREATION_DATE, MODIFICATION_DATE "
     														+ "FROM NEWS "
     														+ "WHERE NEWS_ID = ?";
-    private final static String SQL_SELECT_ALL_NEWSES = "SELECT NEWS_ID, TITLE, SHORT_TEXT, FULL_TEXT, CREATION_DATE, MODIFICATION_DATE "
-    													+ "FROM NEWS";
+    private final static String SQL_SELECT_ALL_NEWSES = "SELECT N.NEWS_ID, N.TITLE, N.SHORT_TEXT, N.FULL_TEXT, N.CREATION_DATE, N.MODIFICATION_DATE, NVL(NQ.QT,0) QT "
+    													+ "FROM NEWS N "
+    													+ "LEFT JOIN ("
+    														+ "SELECT NEWS_ID, COUNT(NEWS_ID) QT "
+    														+ "FROM COMMENTS "
+    														+ "GROUP BY NEWS_ID "
+    														+ "ORDER BY QT DESC"
+    													+ ") NQ ON N.NEWS_ID = NQ.NEWS_ID "
+    													+ "ORDER BY QT DESC, N.MODIFICATION_DATE DESC";
     private final static String SQL_SELECT_COUNT_ALL_NEWSES = "SELECT COUNT(1) "
     														+ "FROM NEWS";
     private final static String SQL_UPDATE_NEWS_BY_NEWS_ID = "UPDATE NEWS "
@@ -52,13 +61,17 @@ public class NewsDAOImpl implements NewsDAO {
     																+ "FROM NEWS, NEWS_TAG, NEWS_AUTHOR "
     																+ "WHERE NEWS.NEWS_ID = NEWS_TAG.NEWS_ID AND NEWS_TAG.TAG_ID = ? AND NEWS.NEWS_ID = NEWS_AUTHOR.NEWS_ID AND NEWS_AUTHOR.AUTHOR_ID = ?";
     private final static String SQL_SELECT_NEWSES_FROM_TO_ORDER = "SELECT * "
-    															+ "FROM (SELECT a.*, ROWNUM rnum "
-    																	+ "FROM (SELECT n.NEWS_ID, n.TITLE, n.SHORT_TEXT, n.FULL_TEXT, n.CREATION_DATE, n.MODIFICATION_DATE, COUNT(c.NEWS_ID) as co "
-    																			+ "FROM NEWS n LEFT JOIN COMMENTS c ON n.NEWS_ID = c.NEWS_ID "
-    																			+ "GROUP BY n.NEWS_ID, n.TITLE, n.SHORT_TEXT, n.FULL_TEXT, n.CREATION_DATE, n.MODIFICATION_DATE "
-    																			+ "ORDER BY n.CREATION_DATE DESC, co DESC) a "
-    																			+ "WHERE ROWNUM <= ?) "
-    																	+ "WHERE rnum >= ?"; /*Select news order by	creation date 
+    															+ "FROM ("
+    																+ "SELECT QRN.*, ROWNUM RNUM "
+    																+ "FROM ("
+    																	+ "SELECT N.NEWS_ID, N.TITLE, N.SHORT_TEXT, N.FULL_TEXT, N.CREATION_DATE, N.MODIFICATION_DATE, COUNT(C.NEWS_ID) as CC "
+    																	+ "FROM NEWS N "
+    																	+ "LEFT JOIN COMMENTS C ON N.NEWS_ID = C.NEWS_ID "
+    																	+ "GROUP BY N.NEWS_ID, N.TITLE, N.SHORT_TEXT, N.FULL_TEXT, N.CREATION_DATE, N.MODIFICATION_DATE "
+    																	+ "ORDER BY CC DESC, N.MODIFICATION_DATE DESC"
+    																+ ") QRN "
+    																+ "WHERE ROWNUM <= ?) "
+    															+ "WHERE RNUM >= ?"; /*Select news order by	creation date 
     																							and count comments by more population (use ROWNUM, pagination)*/		
     private final static String SQL_CREATE_LINK_NEWS_AUTHOR = "INSERT INTO NEWS_AUTHOR(NEWS_ID, AUTHOR_ID) "
 															+ "VALUES(?, ?)";
@@ -181,7 +194,7 @@ public class NewsDAOImpl implements NewsDAO {
     @Override
     public List<News> paginationNews(int from, int to) throws DAOException{
     	List<News> listNews = null;
-    	if(from >= 0 && to >= 0){
+    	if(from >= 0 && to >= 0 && from <= to){
     		listNews = jdbcTemplate.query(SQL_SELECT_NEWSES_FROM_TO_ORDER, 
     				new Object[]{to, from}, new NewsMapper());
     		logger.debug("Selected news by order from=" + from + " to=" + to +";");
@@ -244,5 +257,27 @@ public class NewsDAOImpl implements NewsDAO {
     	if(newsId != null && tagId != null){
     		jdbcTemplate.update(SQL_CREATE_LINK_NEWS_TAG, new Object[]{newsId, tagId});
     	}
+    }
+    /**
+     * Implementation {@link NewsDAO#filterNews(SearchParameter)
+     */
+    @Override
+    public List<News> filterNews(SearchParameter searchParameter) throws DAOException{
+    	List<News> listNews = null;
+    	if(searchParameter != null){
+    		listNews = jdbcTemplate.query(FilterQueryBuilder.buildFilterQuery(searchParameter), new NewsMapper());
+    	}
+    	return listNews;
+    }
+    /**
+     * Implementation {@link NewsDAO#filterNews(SearchParameter, int, int)
+     */
+    @Override 
+    public List<News> filterNews(SearchParameter searchParameter, int from, int to) throws DAOException{
+    	List<News> listNews = null;
+    	if(searchParameter != null && from >= 0 && to >= 0 && to >= from){
+    		listNews = jdbcTemplate.query(FilterQueryBuilder.buildFilterQuery(searchParameter, from, to), new NewsMapper());
+    	}
+    	return listNews;
     }
 }

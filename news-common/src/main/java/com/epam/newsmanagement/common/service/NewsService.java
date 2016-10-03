@@ -49,4 +49,22 @@ public interface NewsService extends EntityService<News, Long> {
 	 * Get news and all news information by news id
 	 */
 	NewsInfo getFullNews(Long newsId) throws ServiceException;
+	
+	/**
+	 * filter news by author and tags
+	 * @param searchParameter
+	 * @return
+	 * @throws ServiceException
+	 */
+	List<NewsInfo> filterNews(SearchParameter searchParameter) throws ServiceException;
+	
+	/**
+	 * filter news by author and tags for page
+	 * @param searchParameter
+	 * @param from
+	 * @param to
+	 * @return
+	 * @throws ServiceException
+	 */
+	List<NewsInfo> filterNews(SearchParameter searchParameter, int from, int to) throws ServiceException;
 }

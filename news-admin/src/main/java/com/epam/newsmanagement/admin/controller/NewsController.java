@@ -3,11 +3,14 @@ package com.epam.newsmanagement.admin.controller;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.log4j.LogManager;
@@ -177,14 +180,24 @@ public class NewsController {
      * @return
      */
     @RequestMapping(value = "news/filternews", method = RequestMethod.POST)
-    public String filteredNews(@ModelAttribute("searchParameter")SearchParameter searchParameter, 
-    		BindingResult result, Model model){
-    	if(result.hasErrors()){
-    		return "error";
-    	}
+    public String filteredNews(@RequestParam("authorId") Long authorId, @RequestParam("tagsId") Long[] tagsId, Model model){
+    	
+    	SearchParameter searchParameter = new SearchParameter();
+    	Author author = new Author();
+    	author.setIdAuthor(authorId);
+    	searchParameter.setAuthor(author);
+    	List<Tag> listTags = new ArrayList<>();
+    	if(tagsId.length >= 1 && tagsId[0] != 0){
+    		for(int i = 0; i < tagsId.length; i++){
+    			Tag tag = new Tag();
+    			tag.setIdTag(tagsId[i]);
+    			listTags.add(tag);
+    		}
+    	}	
+    	searchParameter.setTagList(listTags);
     	List<NewsInfo> listNewsInfo = null;
     	try{
-    		listNewsInfo = newsService.searchNews(searchParameter);
+    		listNewsInfo = newsService.filterNews(searchParameter);
     	}catch(ServiceException e){
     		logger.error("error from searching news", e);
     		model.addAttribute("errorTitle", e);
@@ -197,8 +210,9 @@ public class NewsController {
     		model.addAttribute("errorTitle", e);
     		return "error";
     	}
-    		model.addAttribute("countNews", listNewsInfo.size());
-    		model.addAttribute("listNewsInfo", listNewsInfo);
+    	model.addAttribute("countNews", listNewsInfo.size());
+    	model.addAttribute("listNewsInfo", listNewsInfo);
+    	
     	return "filtrednews";
     }
     

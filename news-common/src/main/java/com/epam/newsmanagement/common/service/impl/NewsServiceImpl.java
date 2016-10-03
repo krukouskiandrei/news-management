@@ -172,7 +172,7 @@ public class NewsServiceImpl implements NewsService{
     public List<NewsInfo> paginationNews(int from, int to) throws ServiceException{
     	List<NewsInfo> listNewsInfo = null;
     	List<News> listNews = null;
-    	if(from >= 0 && to >= 0){
+    	if(from >= 0 && to >= 0 && to >= from){
     		try{
     			listNews = newsDAO.paginationNews(from, to);
     		}catch(DAOException e){
@@ -323,6 +323,52 @@ public class NewsServiceImpl implements NewsService{
     		newsInfo = getInfoForNews(newsId);
     		newsInfo.setNews(news);
     		return newsInfo;
+    	}
+    	throw new ServiceException();
+    }
+    /**
+     * Implementation {@link NewsService#filterNews(SearchParameter)
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<NewsInfo> filterNews(SearchParameter searchParameter) throws ServiceException{
+    	if(searchParameter != null){
+    		List<News> listNews = null;
+    		try{
+    			listNews = newsDAO.filterNews(searchParameter);
+    		}catch(DAOException e){
+    			logger.error("Failed to filter news", e);
+    			throw new ServiceException(e);
+    		}
+    		List<NewsInfo> listNewsInfo = new ArrayList<>();
+    		Iterator<News> newsIterator = listNews.iterator();
+    		while(newsIterator.hasNext()){
+    			listNewsInfo.add(getFullNews(newsIterator.next().getIdNews()));
+    		}
+    		return listNewsInfo;
+    	}
+    	throw new ServiceException();
+    }
+    /**
+     * Implementation {@link NewsService#filterNews(SearchParameter, int, int)
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<NewsInfo> filterNews(SearchParameter searchParameter, int from, int to) throws ServiceException{
+    	if(searchParameter != null && from >= 0 && to >= 0 && to >= from){
+    		List<News> listNews = null;
+    		try{
+    			listNews = newsDAO.filterNews(searchParameter, from, to);
+    		}catch(DAOException e){
+    			logger.error("Failed to filter news", e);
+    			throw new ServiceException(e);
+    		}
+    		List<NewsInfo> listNewsInfo = new ArrayList<>();
+    		Iterator<News> newsIterator = listNews.iterator();
+    		while(newsIterator.hasNext()){
+    			listNewsInfo.add(getFullNews(newsIterator.next().getIdNews()));
+    		}
+    		return listNewsInfo;
     	}
     	throw new ServiceException();
     }

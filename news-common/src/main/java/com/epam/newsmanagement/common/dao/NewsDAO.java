@@ -3,6 +3,7 @@ package com.epam.newsmanagement.common.dao;
 import java.util.List;
 
 import com.epam.newsmanagement.common.entity.News;
+import com.epam.newsmanagement.common.entity.SearchParameter;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
 
 
@@ -59,4 +60,22 @@ public interface NewsDAO extends EntityDAO<News, Long> {
 	 * @throws DAOException if some problem in database
 	 */
 	void createNewsTagLink(Long newsId, Long tagId) throws DAOException;
+	
+	/**
+	 * filter news by author and list tags
+	 * @param searchParameter
+	 * @return
+	 * @throws DAOException
+	 */
+	List<News> filterNews(SearchParameter searchParameter) throws DAOException;
+	
+	/**
+	 * filter news by author and list tags and select by position
+	 * @param searchParameter
+	 * @param from
+	 * @param to
+	 * @return
+	 * @throws DAOException
+	 */
+	List<News> filterNews(SearchParameter searchParameter, int from, int to) throws DAOException;
 }
