@@ -12,6 +12,8 @@ import com.epam.newsmanagement.common.entity.SearchParameter;
 import com.epam.newsmanagement.common.entity.Tag;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
 import com.epam.newsmanagement.common.exception.service.ServiceException;
+import com.epam.newsmanagement.common.service.NewsService;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -121,7 +123,23 @@ public class NewsServiceImplTest {
         newsService.update(news);
         verify(newsDAO).update(news);
     }
-
+    /**
+     * testing method {@link NewsService#deleteFullNews(Long)
+     * @throws ServiceException
+     * @throws DAOException
+     */
+    @Test
+    public void testDeleteFullNews() throws ServiceException, DAOException{
+    	Long newsId = 1L;
+    	News news = new News();
+    	news.setIdNews(newsId);
+    	newsService.deleteFullNews(newsId);
+    	verify(newsDAO).deleteNewsAuthorLink(newsId);
+    	verify(newsDAO).deleteNewsTagLinks(newsId);
+    	verify(commentDAO).deleteCommentByNews(newsId);
+    	verify(newsDAO).delete(newsId);
+    }
+    
     /**
      * testing method delete()
      * @throws ServiceException

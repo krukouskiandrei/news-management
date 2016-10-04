@@ -20,7 +20,14 @@ public interface NewsService extends EntityService<News, Long> {
 	 * about news: authors, tags, comments
 	 */
 	List<NewsInfo> getAllNewsWithInfo() throws ServiceException;
-
+	
+	/**
+	 * get list news by author id
+	 * @param authorId
+	 * @return
+	 * @throws ServiceException
+	 */
+	List<News> getNewsByAuthorId(Long authorId) throws ServiceException;
 	/**
 	 * get list news for showing on page sorted by creation date and count comments
 	 * @param from min position news
@@ -67,4 +74,11 @@ public interface NewsService extends EntityService<News, Long> {
 	 * @throws ServiceException
 	 */
 	List<NewsInfo> filterNews(SearchParameter searchParameter, int from, int to) throws ServiceException;
+	
+	/**
+	 * delete full news form database
+	 * @param newsId
+	 * @throws ServiceException
+	 */
+	void deleteFullNews(Long newsId) throws ServiceException;
 }

@@ -1,5 +1,7 @@
 package com.epam.newsmanagement.common.dao.impl;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +13,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 import com.epam.newsmanagement.common.dao.NewsDAO;
+import com.epam.newsmanagement.common.entity.News;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
 import com.epam.newsmanagement.common.utils.AppConfigTest;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
@@ -39,7 +42,7 @@ public class NewsDAOImplTest {
 	 */
 	@Test
 	public void countAllTest() throws DAOException{
-		Long countNews = 2L;
+		Long countNews = 4L;
 		Assert.assertEquals(countNews, newsDAO.countAll());
 	}
 	
@@ -55,6 +58,10 @@ public class NewsDAOImplTest {
 		Long newAuthorId = 1L;
 		newsDAO.createNewsAuthorLink(newsId, newAuthorId);
 	}
+	/**
+	 * testing method {@link NewsDAO#createNewsTagLink(Long, Long)
+	 * @throws DAOException
+	 */
 	@Test
 	public void createNewsTagLinkTest() throws DAOException{
 		Long newsId = 1L;
@@ -62,6 +69,34 @@ public class NewsDAOImplTest {
 		newsDAO.createNewsTagLink(newsId, tagId);
 		Long newTagId = 1L;
 		newsDAO.createNewsTagLink(newsId, newTagId);
+	}
+	/**
+	 * testing method {@link NewsDAO#deleteNewsTagLinks(Long)
+	 * @throws DAOException
+	 */
+	@Test
+	public void deleteNewsTagLinksTest() throws DAOException{
+		Long newsId = 3L;
+		Long tagId = 3L;
+		List<News> news = newsDAO.getNewsByTag(tagId);
+		Assert.assertEquals(news.get(0).getIdNews(), newsId);
+		newsDAO.deleteNewsTagLinks(newsId);
+		news = newsDAO.getNewsByTag(tagId);
+		Assert.assertTrue(news.isEmpty());		
+	}
+	/**
+	 * testing method {@link NewsDAO#deleteNewsAuthorLink(Long)
+	 * @throws DAOException
+	 */
+	@Test
+	public void deleteNewsAuthorLinkTest() throws DAOException{
+		Long newsId = 3L;
+		Long authorId = 3L;
+		List<News> news = newsDAO.getNewsByAuthor(authorId);
+		Assert.assertEquals(news.get(0).getIdNews(), newsId);
+		newsDAO.deleteNewsAuthorLink(newsId);;
+		news = newsDAO.getNewsByAuthor(authorId);
+		Assert.assertTrue(news.isEmpty());		
 	}
 	
 }

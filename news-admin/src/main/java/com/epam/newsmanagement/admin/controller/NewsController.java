@@ -153,7 +153,7 @@ public class NewsController {
     public String deleteNews(@RequestParam Long[] deleteNewsId, Model model){
     	for(int i = 0; i < deleteNewsId.length; i++){
     		try{
-    			newsService.delete(deleteNewsId[i]);
+    			newsService.deleteFullNews(deleteNewsId[i]);
     		}catch(ServiceException e){
     			logger.error("error with deleting news where id=" + deleteNewsId[i], e);
     			model.addAttribute(e);

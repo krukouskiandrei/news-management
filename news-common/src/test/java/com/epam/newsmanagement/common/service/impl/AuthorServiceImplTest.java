@@ -4,6 +4,8 @@ import com.epam.newsmanagement.common.dao.AuthorDAO;
 import com.epam.newsmanagement.common.entity.Author;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
 import com.epam.newsmanagement.common.exception.service.ServiceException;
+import com.epam.newsmanagement.common.service.NewsService;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +26,8 @@ public class AuthorServiceImplTest {
 
     @Mock
     private AuthorDAO authorDAO;
+    @Mock
+    private NewsService newsService;
     @InjectMocks
     private AuthorServiceImpl authorService;
 

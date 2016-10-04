@@ -372,4 +372,54 @@ public class NewsServiceImpl implements NewsService{
     	}
     	throw new ServiceException();
     }
+    /**
+     * Implementation {@link NewsService#deleteFullNews(Long)
+     */
+    @Override
+    @Transactional
+    public void deleteFullNews(Long newsId) throws ServiceException{
+    	if(newsId > 0){
+    		try{
+    			newsDAO.deleteNewsAuthorLink(newsId);
+    		}catch(DAOException e){
+    			logger.error("Failed to delete news author link", e);
+    			throw new ServiceException(e);
+    		}
+    		try{
+    			newsDAO.deleteNewsTagLinks(newsId);
+    		}catch(DAOException e){
+    			logger.error("Failed to delete news tag links", e);
+    			throw new ServiceException(e);
+    		}
+    		try{
+    			commentDAO.deleteCommentByNews(newsId);
+    		}catch(DAOException e){
+    			logger.error("Failed to delete comments for news newsId=" + newsId, e);
+    			throw new ServiceException(e);
+    		}
+    		try{
+    			newsDAO.delete(newsId);
+    		}catch(DAOException e){
+    			logger.error("Failed to delete news", e);
+    			throw new ServiceException(e);
+    		}
+    	}
+    }
+    /**
+     * Implementation {@link NewsService#getNewsByAuthorId(Long)
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<News> getNewsByAuthorId(Long authorId) throws ServiceException{
+    	if(authorId != null && authorId > 0){
+    		try{
+    			return newsDAO.getNewsByAuthor(authorId);
+    		}catch(DAOException e){
+    			logger.error("Failed to get list news by author id", e);
+    			throw new ServiceException(e);
+    		}
+    	}
+    	throw new ServiceException();
+    }
+    
 }

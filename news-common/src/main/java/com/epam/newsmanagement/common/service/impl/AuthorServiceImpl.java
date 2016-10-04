@@ -2,10 +2,13 @@ package com.epam.newsmanagement.common.service.impl;
 
 import com.epam.newsmanagement.common.dao.AuthorDAO;
 import com.epam.newsmanagement.common.entity.Author;
+import com.epam.newsmanagement.common.entity.News;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
 import com.epam.newsmanagement.common.exception.service.ServiceException;
 import com.epam.newsmanagement.common.service.AuthorService;
 import com.epam.newsmanagement.common.service.EntityService;
+import com.epam.newsmanagement.common.service.NewsService;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -25,6 +29,8 @@ public class AuthorServiceImpl implements AuthorService {
     private final static Logger logger = LogManager.getLogger(AuthorServiceImpl.class);
     @Autowired
     private AuthorDAO authorDAO;
+    @Autowired
+    private NewsService newsService;
 
     /**
      * Implementation of {@link EntityService#create(Serializable)}
@@ -124,7 +130,13 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public void delete(Long authorId) throws ServiceException{
-        if(authorId != null){
+        if(authorId != null && authorId > 0){
+        	List<News> listNews;
+        	listNews = newsService.getNewsByAuthorId(authorId);
+        	Iterator<News> newsIterator = listNews.iterator();
+        	while(newsIterator.hasNext()){
+        		newsService.deleteFullNews(newsIterator.next().getIdNews());        		
+        	}
         	try {
         		authorDAO.delete(authorId);
         	}catch (DAOException e){

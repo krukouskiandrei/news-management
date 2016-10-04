@@ -77,6 +77,10 @@ public class NewsDAOImpl implements NewsDAO {
 															+ "VALUES(?, ?)";
     private final static String SQL_CREATE_LINK_NEWS_TAG = "INSERT INTO NEWS_TAG(NEWS_ID, TAG_ID) "
 															+ "VALUES(?, ?)";
+    private final static String SQL_DELETE_LINK_NEWS_TAG = "DELETE FROM NEWS_TAG "
+    														+ "WHERE NEWS_ID = ?";
+    private final static String SQL_DELETE_LINK_NEWS_AUTHOR = "DELETE FROM NEWS_AUTHOR "
+    														+ "WHERE NEWS_ID = ?";
     private final static Logger logger = LogManager.getLogger(NewsDAOImpl.class);
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
@@ -279,5 +283,27 @@ public class NewsDAOImpl implements NewsDAO {
     		listNews = jdbcTemplate.query(FilterQueryBuilder.buildFilterQuery(searchParameter, from, to), new NewsMapper());
     	}
     	return listNews;
+    }
+    /**
+     * Implementation {@link NewsDAO#deleteNewsTagLinks(Long)
+     */
+    @Override
+    public void deleteNewsTagLinks(Long newsId) throws DAOException{
+    	if(newsId > 0){
+    		jdbcTemplate.update(SQL_DELETE_LINK_NEWS_TAG, 
+    				new Object[]{newsId});
+    		logger.debug("Deleted all rows in table NEWS_TAG for newsId=" + newsId);
+    	}
+    }
+    /**
+     * Implementation {@link NewsDAO#deleteNewsAuthorLink(Long)
+     */
+    @Override
+    public void deleteNewsAuthorLink(Long newsId) throws DAOException{
+    	if(newsId > 0){
+    		jdbcTemplate.update(SQL_DELETE_LINK_NEWS_AUTHOR, 
+    				new Object[]{newsId});
+    		logger.debug("Deleted row in table NEWS_AUTHOR for newsId=" + newsId);
+    	}
     }
 }

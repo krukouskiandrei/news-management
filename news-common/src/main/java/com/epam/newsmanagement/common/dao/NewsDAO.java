@@ -65,7 +65,7 @@ public interface NewsDAO extends EntityDAO<News, Long> {
 	 * filter news by author and list tags
 	 * @param searchParameter
 	 * @return
-	 * @throws DAOException
+	 * @throws DAOException if some problem in database
 	 */
 	List<News> filterNews(SearchParameter searchParameter) throws DAOException;
 	
@@ -75,7 +75,23 @@ public interface NewsDAO extends EntityDAO<News, Long> {
 	 * @param from
 	 * @param to
 	 * @return
-	 * @throws DAOException
+	 * @throws DAOException if some problem in database
 	 */
 	List<News> filterNews(SearchParameter searchParameter, int from, int to) throws DAOException;
+	
+	/**
+	 * deleting all links for news with tag by newsId
+	 * @param newsId
+	 * @throws DAOException if some problem in database
+	 */
+	void deleteNewsTagLinks(Long newsId) throws DAOException;
+	
+	/**
+	 * deleting all link for news with author by newsId 
+	 * @param newsId
+	 * @throws DAOException if some problem in database
+	 */
+	void deleteNewsAuthorLink(Long newsId) throws DAOException;
+	
+	
 }
