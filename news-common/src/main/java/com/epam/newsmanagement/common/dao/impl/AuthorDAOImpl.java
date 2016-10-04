@@ -2,24 +2,24 @@ package com.epam.newsmanagement.common.dao.impl;
 
 import com.epam.newsmanagement.common.dao.AuthorDAO;
 import com.epam.newsmanagement.common.dao.EntityDAO;
-import com.epam.newsmanagement.common.dao.mapper.AuthorMapper;
+import com.epam.newsmanagement.common.dao.utils.ConnectionCloser;
 import com.epam.newsmanagement.common.entity.Author;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,15 +47,9 @@ public class AuthorDAOImpl implements AuthorDAO {
     															+ "WHERE NEWS_AUTHOR.NEWS_ID = ? AND NEWS_AUTHOR.AUTHOR_ID = AUTHOR.AUTHOR_ID";    
     
     private final static Logger logger = LogManager.getLogger(AuthorDAOImpl.class);
-    private DataSource dataSource;
-    private JdbcTemplate jdbcTemplate;
-    
     @Autowired
-    public void setDataSource(DataSource dataSource){
-    	this.dataSource = dataSource;
-    	this.jdbcTemplate = new JdbcTemplate(this.dataSource);
-    }
-
+    private DataSource dataSource;
+    
     /**
      * Implementation of {@link EntityDAO#create(Serializable)}
      * @param author is parameter which need to insert in database
@@ -64,21 +58,30 @@ public class AuthorDAOImpl implements AuthorDAO {
      */
     @Override
     public Long create(Author author) throws DAOException{
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-    	if(author != null){
-    		jdbcTemplate.update(
-    				new PreparedStatementCreator() {						
-						@Override
-						public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-							PreparedStatement pst = con.prepareStatement(SQL_INSER_AUTHOR, new String[] {"author_id"});
-							pst.setString(1, author.getAuthorName());
-							pst.setTimestamp(2, author.getExpiredDate());
-							return pst;
-						}
-					}, 
-    				keyHolder);
-    	}
-    	return (Long)keyHolder.getKey().longValue();
+        if(author != null){
+        	Connection connection = null;
+        	PreparedStatement statement = null;
+        	ResultSet resultSet = null;
+        	try{
+        		connection = DataSourceUtils.doGetConnection(dataSource);
+        		statement = connection.prepareStatement(SQL_INSER_AUTHOR, new String[]{"author_id"});
+        		statement.setString(1, author.getAuthorName());
+        		statement.setTimestamp(2, author.getExpiredDate());
+        		statement.executeUpdate();
+        	
+        		resultSet = statement.getGeneratedKeys();
+        		Long authorId = null;
+        		if(resultSet.next()){
+        			authorId = resultSet.getLong(1);
+        		}
+        		return authorId;
+        	}catch(SQLException e){
+        		throw new DAOException(e);
+        	}finally{
+        		ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+        	}
+        }
+        throw new DAOException();
     }
 
     /**
@@ -89,15 +92,38 @@ public class AuthorDAOImpl implements AuthorDAO {
      */
     @Override
     public Author getById(Long authorId) throws DAOException{
-        Author author = null;
-        if(authorId != null){
-        	author = jdbcTemplate.queryForObject(SQL_SELECT_AUTHOR_BY_AUTHOR_ID, 
-        			new Object[]{authorId}, new AuthorMapper());
-        	logger.debug("Author selected by authorId=" + authorId + ";");
+    	if(authorId != null && authorId > 0){
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		ResultSet resultSet = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_SELECT_AUTHOR_BY_AUTHOR_ID);
+    			statement.setLong(1, authorId);
+        	
+    			resultSet = statement.executeQuery();
+    			Author author = new Author();
+    			if(resultSet.next()){
+        		author = createAuthor(resultSet);
+    			}
+    			logger.debug("Author selected by authorId=" + authorId + ";");
+    			return author;
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+    		}
         }
-        return author;
+    	throw new DAOException();
     }
-
+    
+    private Author createAuthor(ResultSet resultSet) throws SQLException{
+    	Author author = new Author();
+    	author.setIdAuthor(resultSet.getLong(1));
+    	author.setAuthorName(resultSet.getString(2));
+    	author.setExpiredDate(resultSet.getTimestamp(3));
+    	return author;    	
+    }
     /**
      * Implementation of {@link EntityDAO#getAll()}
      * @return list all authors from database
@@ -105,10 +131,26 @@ public class AuthorDAOImpl implements AuthorDAO {
      */
     @Override
     public List<Author> getAll() throws DAOException{
-        List<Author> authorList = null;
-        authorList = jdbcTemplate.query(SQL_SELECT_ALL_AUTHORES, new AuthorMapper());
-        logger.debug("Selected all authors");
-        return authorList;
+    	
+    	Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try{
+        	connection = DataSourceUtils.doGetConnection(dataSource);
+        	statement = connection.prepareStatement(SQL_SELECT_ALL_AUTHORES);
+        	resultSet = statement.executeQuery();
+        	List<Author> authorList = new ArrayList<>();
+        	while(resultSet.next()){
+        		authorList.add(createAuthor(resultSet));
+        	}
+        	logger.debug("Selected all authors");
+            return authorList;
+        }catch(SQLException e){
+        	throw new DAOException(e);
+        }finally{
+        	ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+        }
+    	
     }
 
     /**
@@ -118,10 +160,24 @@ public class AuthorDAOImpl implements AuthorDAO {
      */
     @Override
     public Long countAll() throws DAOException{
-        Long count = null;
-        count = jdbcTemplate.queryForObject(SQL_SELECT_COUNT_ALL_AUTHOR, Long.class);
-        logger.debug("All authors counted");
-        return count;
+    	Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try{
+        	connection = DataSourceUtils.doGetConnection(dataSource);
+        	statement = connection.createStatement();
+        	resultSet = statement.executeQuery(SQL_SELECT_COUNT_ALL_AUTHOR);
+        	Long count = 0L;
+        	if(resultSet.next()){
+        		count = resultSet.getLong(1);
+        	}
+        	logger.debug("All authors counted");
+        	return count;
+        }catch(SQLException e){
+        	throw new DAOException(e);
+        }finally{
+        	ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+        }
     }
 
     /**
@@ -132,10 +188,22 @@ public class AuthorDAOImpl implements AuthorDAO {
     @Override
     public void update(Author author) throws DAOException{
     	if(author != null){
-        	jdbcTemplate.update(SQL_UPDATE_AUTHOR_BY_AUTHOR_ID, 
-        			new Object[]{author.getAuthorName(), author.getExpiredDate(), author.getIdAuthor()});
-        	logger.debug("Author=" + author + " updated in table Author;");
-        }
+    		Connection connection = null;
+            PreparedStatement statement = null;
+            try{
+            	connection = DataSourceUtils.doGetConnection(dataSource);
+            	statement = connection.prepareStatement(SQL_UPDATE_AUTHOR_BY_AUTHOR_ID);
+            	statement.setString(1, author.getAuthorName());
+            	statement.setTimestamp(2, author.getExpiredDate());
+            	statement.setLong(3, author.getIdAuthor());
+            	statement.executeUpdate();
+            	logger.debug("Author=" + author + " updated in table Author;");
+            }catch(SQLException e){
+            	throw new DAOException(e);
+            }finally{
+            	ConnectionCloser.closeConnection(connection, statement, dataSource);
+            }
+    	}
     }
 
     /**
@@ -145,11 +213,21 @@ public class AuthorDAOImpl implements AuthorDAO {
      */
     @Override
     public void delete(Long authorId) throws DAOException{
-    	if(authorId != null){
-        	jdbcTemplate.update(SQL_DELETE_AUTHOR_BY_AUTHOR_ID, 
-        			new Object[]{authorId});
-        	logger.debug("Author with authorId=" + authorId + " deleted from table Author;");
-        }
+    	if(authorId != null && authorId > 0){
+    		Connection connection = null;
+            PreparedStatement statement = null;
+            try{
+            	connection = DataSourceUtils.doGetConnection(dataSource);
+            	statement = connection.prepareStatement(SQL_DELETE_AUTHOR_BY_AUTHOR_ID);
+            	statement.setLong(1, authorId);
+            	statement.executeUpdate();
+            	logger.debug("Author with authorId=" + authorId + " deleted from table Author;");
+            }catch(SQLException e){
+            	throw new DAOException(e);
+            }finally{
+            	ConnectionCloser.closeConnection(connection, statement, dataSource);
+            }
+    	}
     }
     
     /**
@@ -159,15 +237,29 @@ public class AuthorDAOImpl implements AuthorDAO {
      */
     @Override
     public Author getAuthorForNews(Long newsId) throws DAOException{
-    	Author author = null;
-    	if(newsId != null){
-    		List<Author> listAuthor = jdbcTemplate.query(SQL_SELECT_AUTHOR_BY_NEWS_ID, 
-    				new Object[]{newsId}, new AuthorMapper());
-    		if(!listAuthor.isEmpty()){
-    			author = listAuthor.get(0);
+    	if(newsId != null && newsId > 0){
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		ResultSet resultSet = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_SELECT_AUTHOR_BY_NEWS_ID);
+    			statement.setLong(1, newsId);
+        	
+    			resultSet = statement.executeQuery();
+    			Author author = new Author();
+    			if(resultSet.next()){
+        		author = createAuthor(resultSet);
+    			}
+    			logger.debug("Author selected by authorId=" + newsId + ";");
+    			return author;
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
     		}
-    		logger.debug("Author selected by newsId=" + newsId + ";");
-    	}
-    	return author;
+        }
+    	throw new DAOException();
+    	
     }
 }

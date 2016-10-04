@@ -2,7 +2,7 @@ package com.epam.newsmanagement.common.dao.impl;
 
 import com.epam.newsmanagement.common.dao.EntityDAO;
 import com.epam.newsmanagement.common.dao.NewsDAO;
-import com.epam.newsmanagement.common.dao.mapper.NewsMapper;
+import com.epam.newsmanagement.common.dao.utils.ConnectionCloser;
 import com.epam.newsmanagement.common.dao.utils.FilterQueryBuilder;
 import com.epam.newsmanagement.common.entity.News;
 import com.epam.newsmanagement.common.entity.SearchParameter;
@@ -11,17 +11,17 @@ import com.epam.newsmanagement.common.exception.dao.DAOException;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -82,14 +82,9 @@ public class NewsDAOImpl implements NewsDAO {
     private final static String SQL_DELETE_LINK_NEWS_AUTHOR = "DELETE FROM NEWS_AUTHOR "
     														+ "WHERE NEWS_ID = ?";
     private final static Logger logger = LogManager.getLogger(NewsDAOImpl.class);
-    private DataSource dataSource;
-    private JdbcTemplate jdbcTemplate;
-   
     @Autowired
-    public void setDataSource(DataSource dataSource){
-    	this.dataSource = dataSource;
-    	this.jdbcTemplate = new JdbcTemplate(this.dataSource);
-    }
+    private DataSource dataSource;
+    
 
 
     /**
@@ -100,24 +95,35 @@ public class NewsDAOImpl implements NewsDAO {
      */
     @Override
     public Long create(News news) throws DAOException{
-    	KeyHolder keyHolder = new GeneratedKeyHolder();
+    	
     	if(news != null){
-    		jdbcTemplate.update(
-    				new PreparedStatementCreator() {						
-						@Override
-						public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-							PreparedStatement pst = con.prepareStatement(SQL_INSERT_NEWS, new String[] {"news_id"});
-							pst.setString(1, news.getTitle());
-							pst.setString(2, news.getShortText());
-							pst.setString(3, news.getFullText());
-							pst.setTimestamp(4, news.getCreationDate());
-							pst.setDate(5, news.getModificationDate());
-							return pst;
-						}
-					}, 
-    				keyHolder);
-    	}
-    	return (Long)keyHolder.getKey().longValue();
+        	Connection connection = null;
+        	PreparedStatement statement = null;
+        	ResultSet resultSet = null;
+        	try{
+        		connection = DataSourceUtils.doGetConnection(dataSource);
+        		statement = connection.prepareStatement(SQL_INSERT_NEWS, new String[]{"news_id"});
+        		statement.setString(1, news.getTitle());
+        		statement.setString(2, news.getShortText());
+        		statement.setString(3, news.getFullText());
+        		statement.setTimestamp(4, news.getCreationDate());
+        		statement.setDate(5, news.getModificationDate());
+        		statement.executeUpdate();
+        	
+        		resultSet = statement.getGeneratedKeys();
+        		Long newsId = null;
+        		if(resultSet.next()){
+        			newsId = resultSet.getLong(1);
+        		}
+        		return newsId;
+        	}catch(SQLException e){
+        		throw new DAOException(e);
+        	}finally{
+        		ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+        	}
+        }
+        throw new DAOException();
+    	
     }
 
     /**
@@ -128,15 +134,44 @@ public class NewsDAOImpl implements NewsDAO {
      */
     @Override
     public News getById(Long newsId) throws DAOException{
-        News news = null;
-        if(newsId != null){
-        	news = jdbcTemplate.queryForObject(SQL_SELECT_NEWS_BY_NEWS_ID, 
-        			new Object[]{newsId}, new NewsMapper());
-        	logger.debug("News selected by newsId=" + newsId + ";");
+        
+    	if(newsId != null && newsId > 0){
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		ResultSet resultSet = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_SELECT_NEWS_BY_NEWS_ID);
+    			statement.setLong(1, newsId);
+        	
+    			resultSet = statement.executeQuery();
+    			News news = new News();
+    			if(resultSet.next()){
+        		news = createNews(resultSet);
+    			}
+    			logger.debug("News selected by newsId=" + newsId);
+    			return news;
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+    		}
         }
-        return news;
+    	throw new DAOException();
+    	    	
     }
 
+    private News createNews(ResultSet resultSet) throws SQLException{
+    	News news = new News();
+    	news.setIdNews(resultSet.getLong(1));
+		news.setTitle(resultSet.getString(2));
+		news.setShortText(resultSet.getString(3));
+		news.setFullText(resultSet.getString(4));
+		news.setCreationDate(resultSet.getTimestamp(5));
+		news.setModificationDate(resultSet.getDate(6));
+    	return news;    	
+    }
+    
     /**
      * Implementation of {@link EntityDAO#getAll()}
      * @return list all newses from database
@@ -144,10 +179,26 @@ public class NewsDAOImpl implements NewsDAO {
      */
     @Override
     public List<News> getAll() throws DAOException{
-        List<News> newsList = null;
-        newsList = jdbcTemplate.query(SQL_SELECT_ALL_NEWSES, new NewsMapper());
-        logger.debug("Selected all news;");
-        return newsList;
+        
+    	Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try{
+        	connection = DataSourceUtils.doGetConnection(dataSource);
+        	statement = connection.prepareStatement(SQL_SELECT_ALL_NEWSES);
+        	resultSet = statement.executeQuery();
+        	List<News> newsList = new ArrayList<>();
+        	while(resultSet.next()){
+        		newsList.add(createNews(resultSet));
+        	}
+        	logger.debug("Selected all news");
+            return newsList;
+        }catch(SQLException e){
+        	throw new DAOException(e);
+        }finally{
+        	ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+        }
+    	
     }
 
     /**
@@ -157,10 +208,26 @@ public class NewsDAOImpl implements NewsDAO {
      */
     @Override
     public Long countAll() throws DAOException{
-        Long count = null;
-        count = jdbcTemplate.queryForObject(SQL_SELECT_COUNT_ALL_NEWSES, Long.class);
-        logger.debug("All news counted;");
-        return count;
+        
+    	Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try{
+        	connection = DataSourceUtils.doGetConnection(dataSource);
+        	statement = connection.createStatement();
+        	resultSet = statement.executeQuery(SQL_SELECT_COUNT_ALL_NEWSES);
+        	Long count = 0L;
+        	if(resultSet.next()){
+        		count = resultSet.getLong(1);
+        	}
+        	logger.debug("All news counted");
+        	return count;
+        }catch(SQLException e){
+        	throw new DAOException(e);
+        }finally{
+        	ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+        }
+    	
     }
 
     /**
@@ -170,12 +237,28 @@ public class NewsDAOImpl implements NewsDAO {
      */
     @Override
     public void update(News news) throws DAOException{
-        if(news != null){
-        	jdbcTemplate.update(SQL_UPDATE_NEWS_BY_NEWS_ID, 
-        			new Object[]{news.getTitle(), news.getShortText(), news.getFullText(), 
-        					news.getCreationDate(), news.getModificationDate(), news.getIdNews()});
-        	logger.debug("News=" + news + " updated in table News;");
-        }
+        
+    	if(news != null){
+    		Connection connection = null;
+            PreparedStatement statement = null;
+            try{
+            	connection = DataSourceUtils.doGetConnection(dataSource);
+            	statement = connection.prepareStatement(SQL_UPDATE_NEWS_BY_NEWS_ID);
+            	statement.setString(1, news.getTitle());
+            	statement.setString(2, news.getShortText());
+            	statement.setString(3, news.getFullText());
+            	statement.setTimestamp(4, news.getCreationDate());
+            	statement.setDate(5, news.getModificationDate());
+            	statement.setLong(6, news.getIdNews());
+            	statement.executeUpdate();
+            	logger.debug("News=" + news + " updated in table News;");
+            }catch(SQLException e){
+            	throw new DAOException(e);
+            }finally{
+            	ConnectionCloser.closeConnection(connection, statement, dataSource);
+            }
+    	}
+    	
     }
     /**
      * Implementation {@link EntityDAO#delete(Long)}
@@ -184,11 +267,23 @@ public class NewsDAOImpl implements NewsDAO {
      */
     @Override
     public void delete(Long newsID) throws DAOException{
-        if(newsID != null){
-        	jdbcTemplate.update(SQL_DELETE_NEWS_BY_NEWS_ID, 
-        			new Object[]{newsID});
-        	logger.debug("News with newsId=" + newsID + " deleted from table News;");
-        }
+
+    	if(newsID != null && newsID > 0){
+    		Connection connection = null;
+            PreparedStatement statement = null;
+            try{
+            	connection = DataSourceUtils.doGetConnection(dataSource);
+            	statement = connection.prepareStatement(SQL_DELETE_NEWS_BY_NEWS_ID);
+            	statement.setLong(1, newsID);
+            	statement.executeUpdate();
+            	logger.debug("News with newsId=" + newsID + " deleted from table News;");
+            }catch(SQLException e){
+            	throw new DAOException(e);
+            }finally{
+            	ConnectionCloser.closeConnection(connection, statement, dataSource);
+            }
+    	}
+    	
     }
     /**
      * Implementation {@link NewsDAO#paginationNews(int, int)}}
@@ -197,51 +292,120 @@ public class NewsDAOImpl implements NewsDAO {
      */
     @Override
     public List<News> paginationNews(int from, int to) throws DAOException{
-    	List<News> listNews = null;
     	if(from >= 0 && to >= 0 && from <= to){
-    		listNews = jdbcTemplate.query(SQL_SELECT_NEWSES_FROM_TO_ORDER, 
-    				new Object[]{to, from}, new NewsMapper());
-    		logger.debug("Selected news by order from=" + from + " to=" + to +";");
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		ResultSet resultSet = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_SELECT_NEWSES_FROM_TO_ORDER);
+    			statement.setInt(1, to);
+    			statement.setInt(2, from);
+    			resultSet = statement.executeQuery();
+    			List<News> newsList = new ArrayList<>();
+    			while(resultSet.next()){
+    				newsList.add(createNews(resultSet));
+    			}
+    			logger.debug("Selected news by order from=" + from + " to=" + to +";");
+    			return newsList;
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+    		}
     	}
-    	return listNews;
+    	throw new DAOException();
+    	
     }
     /**
      * Implementation {@link NewsDAO#getNewsByAuthor(Long)}
      */
     @Override
     public List<News> getNewsByAuthor(Long authorId) throws DAOException{
-    	List<News> listNews = null;
-    	if(authorId != null){
-    		listNews = jdbcTemplate.query(SQL_SELECT_NEWS_BY_AUTHOR_ID, 
-    				new Object[]{authorId}, new NewsMapper());
-    		logger.debug("Selected news by authorId=" + authorId + ";");
+    	if(authorId != null && authorId > 0){
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		ResultSet resultSet = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_SELECT_NEWS_BY_AUTHOR_ID);
+    			statement.setLong(1, authorId);
+    			resultSet = statement.executeQuery();
+    			List<News> newsList = new ArrayList<>();
+    			while(resultSet.next()){
+    				newsList.add(createNews(resultSet));
+    			}
+    			logger.debug("Selected news by authorId=" + authorId + ";");
+    			return newsList;
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+    		}
     	}
-    	return listNews;
+    	throw new DAOException();
+    	
     }
     /**
      * Implementation {@link NewsDAO#getNewsByTag(Long)}
      */
     @Override
     public List<News> getNewsByTag(Long tagId) throws DAOException{
-    	List<News> listNews = null;
-    	if(tagId != null){
-    		listNews = jdbcTemplate.query(SQL_SELECT_NEWS_BY_TAG_ID, 
-    				new Object[]{tagId}, new NewsMapper());
-    		logger.debug("Selected news by tagId=" + tagId + ";");
+    	
+    	if(tagId != null && tagId > 0){
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		ResultSet resultSet = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_SELECT_NEWS_BY_TAG_ID);
+    			statement.setLong(1, tagId);
+    			resultSet = statement.executeQuery();
+    			List<News> newsList = new ArrayList<>();
+    			while(resultSet.next()){
+    				newsList.add(createNews(resultSet));
+    			}
+    			logger.debug("Selected news by tagId=" + tagId + ";");
+    			return newsList;
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+    		}
     	}
-    	return listNews;
+    	throw new DAOException();
+    	
     }
     /**
      * Implementation {@link NewsDAO#getNewsByAuthorAndTag(Long, Long)}
      */
     @Override
     public List<News> getNewsByAuthorAndTag(Long tagId, Long authorId) throws DAOException{
-    	List<News> listNews = null;
-    	if(tagId != null && authorId != null){
-    		listNews = jdbcTemplate.query(SQL_SELECT_NEWS_BY_AUTHOR_AND_TAG, 
-    				new Object[]{tagId, authorId}, new NewsMapper());
+    	
+    	if(tagId != null && authorId != null && tagId > 0 && authorId > 0){
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		ResultSet resultSet = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_SELECT_NEWS_BY_AUTHOR_AND_TAG);
+    			statement.setLong(1, tagId);
+    			statement.setLong(2, authorId);
+    			resultSet = statement.executeQuery();
+    			List<News> newsList = new ArrayList<>();
+    			while(resultSet.next()){
+    				newsList.add(createNews(resultSet));
+    			}
+    			logger.debug("Selected news by tagId=" + tagId + " and authorId=" + authorId);
+    			return newsList;
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+    		}
     	}
-    	return listNews;
+    	throw new DAOException();
+    	
     }
     
     /**
@@ -249,61 +413,144 @@ public class NewsDAOImpl implements NewsDAO {
      */
     @Override
     public void createNewsAuthorLink(Long newsId, Long authorId) throws DAOException{
-    	if(newsId != null && authorId != null){
-    		jdbcTemplate.update(SQL_CREATE_LINK_NEWS_AUTHOR, new Object[]{newsId, authorId});
+    	if(newsId != null && authorId != null && newsId > 0 && authorId > 0){
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_CREATE_LINK_NEWS_AUTHOR);
+    			statement.setLong(1, newsId);
+    			statement.setLong(2, authorId);
+    			statement.executeUpdate();    			
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource);
+    		}
     	}
+    	    	
     }
     /**
      * Implementation {@link NewsDAO#createNewsTagLink(Long, Long)}
      */
     @Override
     public void createNewsTagLink(Long newsId, Long tagId) throws DAOException{
-    	if(newsId != null && tagId != null){
-    		jdbcTemplate.update(SQL_CREATE_LINK_NEWS_TAG, new Object[]{newsId, tagId});
+    	if(newsId != null && tagId != null && newsId > 0 && tagId > 0){
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_CREATE_LINK_NEWS_TAG);
+    			statement.setLong(1, newsId);
+    			statement.setLong(2, tagId);
+    			statement.executeUpdate();    			
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource);
+    		}
     	}
+    	
     }
     /**
      * Implementation {@link NewsDAO#filterNews(SearchParameter)
      */
     @Override
     public List<News> filterNews(SearchParameter searchParameter) throws DAOException{
-    	List<News> listNews = null;
     	if(searchParameter != null){
-    		listNews = jdbcTemplate.query(FilterQueryBuilder.buildFilterQuery(searchParameter), new NewsMapper());
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		ResultSet resultSet = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(FilterQueryBuilder.buildFilterQuery(searchParameter));
+    			resultSet = statement.executeQuery();
+    			List<News> newsList = new ArrayList<>();
+    			while(resultSet.next()){
+    				newsList.add(createNews(resultSet));
+    			}
+    			return newsList;
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+    		}
     	}
-    	return listNews;
+    	throw new DAOException();
+    	
     }
     /**
      * Implementation {@link NewsDAO#filterNews(SearchParameter, int, int)
      */
     @Override 
     public List<News> filterNews(SearchParameter searchParameter, int from, int to) throws DAOException{
-    	List<News> listNews = null;
-    	if(searchParameter != null && from >= 0 && to >= 0 && to >= from){
-    		listNews = jdbcTemplate.query(FilterQueryBuilder.buildFilterQuery(searchParameter, from, to), new NewsMapper());
+    	
+    	if(searchParameter != null){
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		ResultSet resultSet = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(FilterQueryBuilder.buildFilterQuery(searchParameter, from, to));
+    			resultSet = statement.executeQuery();
+    			List<News> newsList = new ArrayList<>();
+    			while(resultSet.next()){
+    				newsList.add(createNews(resultSet));
+    			}
+    			return newsList;
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+    		}
     	}
-    	return listNews;
+    	throw new DAOException();
+    	
     }
     /**
      * Implementation {@link NewsDAO#deleteNewsTagLinks(Long)
      */
     @Override
     public void deleteNewsTagLinks(Long newsId) throws DAOException{
-    	if(newsId > 0){
-    		jdbcTemplate.update(SQL_DELETE_LINK_NEWS_TAG, 
-    				new Object[]{newsId});
-    		logger.debug("Deleted all rows in table NEWS_TAG for newsId=" + newsId);
+    	
+    	if(newsId != null  && newsId > 0){
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_DELETE_LINK_NEWS_TAG);
+    			statement.setLong(1, newsId);
+    			statement.executeUpdate(); 
+    			logger.debug("Deleted all rows in table NEWS_TAG for newsId=" + newsId);
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource);
+    		}
     	}
+    	
     }
     /**
      * Implementation {@link NewsDAO#deleteNewsAuthorLink(Long)
      */
     @Override
     public void deleteNewsAuthorLink(Long newsId) throws DAOException{
-    	if(newsId > 0){
-    		jdbcTemplate.update(SQL_DELETE_LINK_NEWS_AUTHOR, 
-    				new Object[]{newsId});
-    		logger.debug("Deleted row in table NEWS_AUTHOR for newsId=" + newsId);
+    	
+    	if(newsId != null  && newsId > 0){
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_DELETE_LINK_NEWS_AUTHOR);
+    			statement.setLong(1, newsId);
+    			statement.executeUpdate(); 
+    			logger.debug("Deleted row in table NEWS_AUTHOR for newsId=" + newsId);
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource);
+    		}
     	}
+    	
     }
 }

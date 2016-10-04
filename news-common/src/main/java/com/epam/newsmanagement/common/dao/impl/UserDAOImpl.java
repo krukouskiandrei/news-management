@@ -2,25 +2,24 @@ package com.epam.newsmanagement.common.dao.impl;
 
 import com.epam.newsmanagement.common.dao.EntityDAO;
 import com.epam.newsmanagement.common.dao.UserDAO;
-import com.epam.newsmanagement.common.dao.mapper.LongMapper;
-import com.epam.newsmanagement.common.dao.mapper.UserMapper;
+import com.epam.newsmanagement.common.dao.utils.ConnectionCloser;
 import com.epam.newsmanagement.common.entity.User;
 import com.epam.newsmanagement.common.exception.dao.DAOException;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,15 +49,9 @@ public class UserDAOImpl implements UserDAO {
     																	+ "WHERE LOGIN = ? AND PASSWORD = ?";
     
     private final static Logger logger = LogManager.getLogger(UserDAOImpl.class);
-    private DataSource dataSource;
-    private JdbcTemplate jdbcTemplate;
-    
     @Autowired
-    public void setDataSource(DataSource dataSource){
-    	this.dataSource = dataSource;
-    	this.jdbcTemplate = new JdbcTemplate(this.dataSource);
-    }
-
+    private DataSource dataSource;
+    
     /**
      * Implementation of {@link EntityDAO#create(Serializable)}
      * @param user is parameter which need to insert in database
@@ -67,22 +60,34 @@ public class UserDAOImpl implements UserDAO {
      */
     @Override
     public Long create(User user) throws DAOException{
-    	KeyHolder keyHolder = new GeneratedKeyHolder();
+    	
     	if(user != null){
-    		jdbcTemplate.update(
-    				new PreparedStatementCreator() {						
-						@Override
-						public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-							PreparedStatement pst = con.prepareStatement(SQL_INSER_USER, new String[] {"user_id"});
-							pst.setString(1, user.getUserName());
-							pst.setString(2, user.getLogin());
-							pst.setString(3, user.getPassword());
-							return pst;
-						}
-					}, 
-    				keyHolder);
-    	}
-    	return (Long)keyHolder.getKey().longValue();
+        	Connection connection = null;
+        	PreparedStatement statement = null;
+        	ResultSet resultSet = null;
+        	try{
+        		connection = DataSourceUtils.doGetConnection(dataSource);
+        		statement = connection.prepareStatement(SQL_INSER_USER, new String[]{"user_id"});
+        		statement.setString(1, user.getUserName());
+				statement.setString(2, user.getLogin());
+				statement.setString(3, user.getPassword());
+        		statement.executeUpdate();
+        	
+        		resultSet = statement.getGeneratedKeys();
+        		Long userId = null;
+        		if(resultSet.next()){
+        			userId = resultSet.getLong(1);
+        		}
+        		return userId;
+        	}catch(SQLException e){
+        		throw new DAOException(e);
+        	}finally{
+        		ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+        	}
+        }
+        throw new DAOException();
+    	
+    	
     }
     
     /**
@@ -93,15 +98,43 @@ public class UserDAOImpl implements UserDAO {
      */
     @Override
     public User getById(Long userId) throws DAOException{
-        User user = null;
-        if(userId != null){
-        	user = jdbcTemplate.queryForObject(SQL_SELECT_USER_BY_USER_ID, 
-        			new Object[]{userId}, new UserMapper());
-        	logger.debug("User selected by userId=" + userId + ";");
+        
+    	if(userId != null && userId > 0){
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		ResultSet resultSet = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_SELECT_USER_BY_USER_ID);
+    			statement.setLong(1, userId);
+        	
+    			resultSet = statement.executeQuery();
+    			User user = new User();
+    			if(resultSet.next()){
+        		user = createUser(resultSet);
+    			}
+    			logger.debug("User selected by userId=" + userId);
+    			return user;
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+    		}
         }
-        return user;
+    	throw new DAOException();
+    	    	
     }
 
+    
+    private User createUser(ResultSet resultSet) throws SQLException{
+    	User user = new User();
+		user.setIdUser(resultSet.getLong(1));
+		user.setUserName(resultSet.getString(2));
+		user.setLogin(resultSet.getString(3));
+		user.setPassword(resultSet.getString(4));
+		return user;	
+    }
+    
     /**
      * Implementation of {@link EntityDAO#getAll()}
      * @return list all users from database
@@ -109,10 +142,27 @@ public class UserDAOImpl implements UserDAO {
      */
     @Override
     public List<User> getAll() throws DAOException{
-        List<User> userList = null;
-        userList = jdbcTemplate.query(SQL_SELECT_ALL_USERS, new UserMapper());
-        logger.debug("All users selected");
-        return userList;
+        
+    	Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try{
+        	connection = DataSourceUtils.doGetConnection(dataSource);
+        	statement = connection.prepareStatement(SQL_SELECT_ALL_USERS);
+        	resultSet = statement.executeQuery();
+        	List<User> userList = new ArrayList<>();
+        	while(resultSet.next()){
+        		userList.add(createUser(resultSet));
+        	}
+        	logger.debug("All users selected");
+            return userList;
+        }catch(SQLException e){
+        	throw new DAOException(e);
+        }finally{
+        	ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+        }
+    	
+    	
     }
 
     /**
@@ -122,10 +172,27 @@ public class UserDAOImpl implements UserDAO {
      */
     @Override
     public Long countAll() throws DAOException{
-        Long count = null;
-        count  = jdbcTemplate.queryForObject(SQL_SELECT_COUNT_ALL_USERS, Long.class);
-        logger.debug("All users counted;");
-        return  count;
+        
+    	Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try{
+        	connection = DataSourceUtils.doGetConnection(dataSource);
+        	statement = connection.createStatement();
+        	resultSet = statement.executeQuery(SQL_SELECT_COUNT_ALL_USERS);
+        	Long count = 0L;
+        	if(resultSet.next()){
+        		count = resultSet.getLong(1);
+        	}
+        	logger.debug("All users counted");
+        	return count;
+        }catch(SQLException e){
+        	throw new DAOException(e);
+        }finally{
+        	ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+        }
+    	
+    	
     }
 
     /**
@@ -135,11 +202,27 @@ public class UserDAOImpl implements UserDAO {
      */
     @Override
     public void update(User user) throws DAOException{
-       if(user != null){
-    	   jdbcTemplate.update(SQL_UPDATE_USER_BY_USER_ID, 
-    			   new Object[]{user.getUserName(), user.getLogin(), user.getPassword(), user.getIdUser()});
-    	   logger.debug("User=" + user + " updated in table Customer;");
-       }
+       
+    	if(user != null){
+    		Connection connection = null;
+            PreparedStatement statement = null;
+            try{
+            	connection = DataSourceUtils.doGetConnection(dataSource);
+            	statement = connection.prepareStatement(SQL_UPDATE_USER_BY_USER_ID);
+            	statement.setString(1, user.getUserName());
+            	statement.setString(2, user.getLogin());
+            	statement.setString(3, user.getPassword());
+            	statement.setLong(4, user.getIdUser());
+            	statement.executeUpdate();
+            	logger.debug("User=" + user + " updated in table Customer;");
+            }catch(SQLException e){
+            	throw new DAOException(e);
+            }finally{
+            	ConnectionCloser.closeConnection(connection, statement, dataSource);
+            }
+    	}
+    	
+    	
     }
 
     /**
@@ -149,10 +232,23 @@ public class UserDAOImpl implements UserDAO {
      */
     @Override
     public void delete(Long userId) throws DAOException{
-        if(userId != null){
-        	jdbcTemplate.update(SQL_DELETE_USER_BY_USER_ID, new Object[]{userId});
-        	logger.debug("User whith userId=" + userId + " deleted from table Customer;");
-        }
+        
+    	if(userId != null && userId > 0){
+    		Connection connection = null;
+            PreparedStatement statement = null;
+            try{
+            	connection = DataSourceUtils.doGetConnection(dataSource);
+            	statement = connection.prepareStatement(SQL_DELETE_USER_BY_USER_ID);
+            	statement.setLong(1, userId);
+            	statement.executeUpdate();
+            	logger.debug("User whith userId=" + userId + " deleted from table Customer");
+            }catch(SQLException e){
+            	throw new DAOException(e);
+            }finally{
+            	ConnectionCloser.closeConnection(connection, statement, dataSource);
+            }
+    	}
+    	
     }
 
     /**
@@ -163,16 +259,32 @@ public class UserDAOImpl implements UserDAO {
      */
     @Override
     public boolean checkUser(Long userId) throws DAOException{
-        boolean containsUser = false;
-        if(userId != null){
-        	List<Long> checkListUsers = jdbcTemplate.query(SQL_CHECK_USER_BY_USER_ID, 
-        			new Object[]{userId}, new LongMapper());
-        	if(!checkListUsers.isEmpty()){
-        		containsUser = true;
-        	}
-        	logger.debug("User by userId=" + userId + " checked;");
-        }
-        return containsUser;
+        
+    	if(userId != null && userId > 0){
+    		boolean containsUser = false;
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		ResultSet resultSet = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_CHECK_USER_BY_USER_ID);
+    			statement.setLong(1, userId);
+        	
+    			resultSet = statement.executeQuery();
+    			if(resultSet.next()){
+    				containsUser = true;
+    			}
+    			logger.debug("User by userId=" + userId + " checked;");
+    			
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+    		}
+    		return containsUser;
+    	}
+    	throw new DAOException();
+    	
     }
 
     /**
@@ -184,16 +296,32 @@ public class UserDAOImpl implements UserDAO {
      */
     @Override
     public User getUser(String login, String password) throws DAOException{
-        User user = null;
-        if(login != null && password != null){
-        	List<User> listUsers = jdbcTemplate.query(SQL_SELECT_USER_BY_LOGIN_AND_PASSWORD, 
-        			new Object[]{login, password}, new UserMapper());
-        	if(!listUsers.isEmpty()){
-        		user = listUsers.get(0);
-        	}
-        	logger.debug("User by login=" + login + " and password=" + password + " selected;");
-        }
-       return user;
+        
+    	if(login != null && password != null){
+    		Connection connection = null;
+    		PreparedStatement statement = null;
+    		ResultSet resultSet = null;
+    		try{
+    			connection = DataSourceUtils.doGetConnection(dataSource);
+    			statement = connection.prepareStatement(SQL_SELECT_USER_BY_LOGIN_AND_PASSWORD);
+    			statement.setString(1, login);
+    			statement.setString(2, password);
+        	
+    			resultSet = statement.executeQuery();
+    			User user = new User();
+    			if(resultSet.next()){
+        		user = createUser(resultSet);
+    			}
+    			logger.debug("User by login=" + login + " and password=" + password + " selected;");
+    			return user;
+    		}catch(SQLException e){
+    			throw new DAOException(e);
+    		}finally{
+    			ConnectionCloser.closeConnection(connection, statement, dataSource, resultSet);
+    		}
+    	}
+    	throw new DAOException();
+    	
     }
 
 
